@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,6 +28,7 @@ public class AddPlanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_plan);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //getActionBar().setTitle("Add a Plan Title");
 
         userTitleEntry = (EditText) findViewById(R.id.TitleEntry);
         addcloseButton();
@@ -42,6 +44,7 @@ public class AddPlanActivity extends AppCompatActivity {
                 intent.putExtra("editText", userTitleEntry.getText().toString());
                 setResult (RESULT_OK, intent);
                 finish();
+
             }
         });
     }

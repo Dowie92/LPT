@@ -1,12 +1,16 @@
 package alexdissertation.lpt;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -14,6 +18,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,7 +54,7 @@ public class Home extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(Home.this, AddPlanActivity.class);
                 startActivityForResult(intent, 1);
-                            }
+            }
 
         });
 
@@ -58,15 +63,88 @@ public class Home extends AppCompatActivity {
         listViewItems = new ArrayList<String>();
         arrayAdapt = new titleScreenAdapter(this, R.layout.homescreenlayout, listViewItems);
         listView.setAdapter(arrayAdapt);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        registerForContextMenu(listView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(Home.this, DetailsAndSubLayer.class);
+                startActivity(intent);
                 Toast.makeText(Home.this, "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
-        });
+            });
 
         //clickCallBack();
         loadFile();
+    }
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
+        menu.add(0, v.getId(), 0, "Edit");
+        menu.add(0, v.getId(), 0, "Delete");
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) MenuInfo;
+        menu.setHeaderTitle(listViewItems.get(info.position));
+
+    }
+    public boolean onContextItemSelected(MenuItem item){
+       AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        final int i = info.position;
+        final EditText editText = new EditText(this);
+        if(item.getTitle()=="Edit"){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(editText);
+            builder.setTitle("Edit Plan title");
+            builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialogue, int id){
+                    //User Clicked on Confirm button
+                    String editTextValue = editText.getText().toString();
+                    listViewItems.remove(i);
+                    listViewItems.add(i,editTextValue);
+                    arrayAdapt.notifyDataSetChanged();
+                    try {
+                        saveFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //titlesLineEdit();
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialogue, int id){
+                    //User Clicked Cancel
+                }
+            });
+            AlertDialog dialogue = builder.create();
+            dialogue.show();
+            Toast.makeText(getApplicationContext(), "Edit Clicked", Toast.LENGTH_SHORT).show();
+        }
+        if(item.getTitle()=="Delete"){
+            //could be recoded to own class
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Please confirm deleting this plan");
+            builder.setTitle("Delete Plan");
+            builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialogue, int id) {
+                    //User Clicked on the Confirm button
+                    // Remove the listview item
+                    listViewItems.remove(i);
+                    arrayAdapt.notifyDataSetChanged();
+                    try {
+                        saveFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getApplicationContext(),"Item deleted",Toast.LENGTH_LONG).show();
+                }
+                });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //User Cancelled the Dialogue
+                }
+            });
+            AlertDialog dialogue = builder.create();
+            dialogue.show();
+        }
+        return  true;
+
     }
 
     //Screen adapter to build the listviewscreen
@@ -106,7 +184,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    //class for the references of the homescreen layout
+    //class for the references of the home screen layout
     public class titleViewLayoutRef {
         TextView Title;
         TextView Save;
@@ -125,6 +203,11 @@ public class Home extends AppCompatActivity {
        listViewItems.add(editTextString);
        //updates the listView
        arrayAdapt.notifyDataSetChanged();
+       try {
+           saveFile();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
    }
 
     /*
@@ -139,6 +222,13 @@ public class Home extends AppCompatActivity {
             }
         });
     } */
+
+
+    //Editing individual item
+    public void titlesLineEdit(){
+
+
+    }
     //deletes entire titles file
     public void titlesFileDelete (){
         File deleteFile = new File(this.getFilesDir(), "TitlesFile");
@@ -156,6 +246,7 @@ public class Home extends AppCompatActivity {
     //Save Titles file code
     public void saveFile () throws IOException {
         titlesFileDelete();
+        //listViewItems.clear(); *attempt at another way of clearing the file to then add to for re writing the file
         titlesSaveFile = new File(this.getFilesDir(), "TitlesFile");
         Log.d("file location", String.valueOf(titlesSaveFile));
         FileWriter writer = new FileWriter(titlesSaveFile, true);
@@ -220,6 +311,5 @@ public class Home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
 
     }
-
 
 }
