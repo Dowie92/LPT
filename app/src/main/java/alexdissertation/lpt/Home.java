@@ -39,10 +39,12 @@ public class Home extends AppCompatActivity {
     private ArrayAdapter <String> arrayAdapt;
     private ListView listView;
     private String editTextString;
+    private String titlesFile = "TitlesFile";
     private File titlesSaveFile;
+    private LayerTitles saveFileDetail = new LayerTitles();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -58,6 +60,7 @@ public class Home extends AppCompatActivity {
 
         });
 
+
         listView = (ListView) findViewById(R.id.ListView);
         //Array of titles
         listViewItems = new ArrayList<String>();
@@ -68,6 +71,28 @@ public class Home extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(Home.this, DetailsAndSubLayer.class);
+                String title;
+                int titlePos;
+                titlePos = position;
+                title = listViewItems.get(position);
+
+                //Adds the home level details to LT Class
+                saveFileDetail.arrayClear();
+                LayerTitles.setHomeTitle(title);
+                LayerTitles.setHomePosition(String.valueOf(titlePos));
+                LayerTitles.setHomeLayer();
+                saveFileDetail.addHomeToArray(); // adds the home title details to array when the part is clicked..
+                //String tester;
+                //tester = saveFileDetail.arrayPull();
+                //Log.d("Home Tester", tester);
+
+
+               //savefile details intent version...(Broken)
+                intent.putExtra("title",title);
+                intent.putExtra("titleLayer", 1); // will need to keep to allow for layer comparison method..
+                intent.putExtra("titlePosition", titlePos);
+
+
                 startActivity(intent);
                 Toast.makeText(Home.this, "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
@@ -76,6 +101,21 @@ public class Home extends AppCompatActivity {
         //clickCallBack();
         loadFile();
     }
+
+    /*public void sendHomeTitleDetails(int position1){
+        String title;
+        int titlePos;
+        titlePos = position1;
+        title = listViewItems.get(position1);
+
+        LayerTitles saveFileDetail = new LayerTitles();
+        //Adds the home level details to LT Class
+        saveFileDetail.setHomeTitle(title);
+        saveFileDetail.setPosition(String.valueOf(titlePos));
+        saveFileDetail.setLayer(String.valueOf(1));
+        saveFileDetail.addHomeToArray(); // adds the home title details to array when the part is clicked..
+    }*/
+
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
         menu.add(0, v.getId(), 0, "Edit");
         menu.add(0, v.getId(), 0, "Delete");
@@ -157,7 +197,7 @@ public class Home extends AppCompatActivity {
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            titleViewLayoutRef mainViewHolder = null;
+            titleViewLayoutRef mainViewHolder;
             if(convertView == null){
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 convertView = inflater.inflate(layout, parent, false);
@@ -167,7 +207,7 @@ public class Home extends AppCompatActivity {
                 convertView.setTag(titleViewLayoutRef);
             }
             mainViewHolder = (titleViewLayoutRef) convertView.getTag();
-            mainViewHolder.Save.setOnClickListener(new View.OnClickListener() {
+            /*mainViewHolder.Save.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         try {
@@ -178,7 +218,7 @@ public class Home extends AppCompatActivity {
                             Toast.makeText(getContext(), "File not found", Toast.LENGTH_LONG).show();
                         }
                     }
-                });
+                });*/
             mainViewHolder.Title.setText(getItem(position));
             return convertView;
         }
@@ -197,12 +237,13 @@ public class Home extends AppCompatActivity {
        switch(requestCode){
            case 1:
        }
-       //gets the data from title activity
+       //gets the data from addtitle activity
        editTextString = data.getStringExtra("editText");
        //adds data to the array to go into the listview
        listViewItems.add(editTextString);
        //updates the listView
        arrayAdapt.notifyDataSetChanged();
+       //Saves the file
        try {
            saveFile();
        } catch (IOException e) {
@@ -231,7 +272,7 @@ public class Home extends AppCompatActivity {
     }
     //deletes entire titles file
     public void titlesFileDelete (){
-        File deleteFile = new File(this.getFilesDir(), "TitlesFile");
+        File deleteFile = new File(this.getFilesDir(), titlesFile);
         if (!deleteFile.exists()){
             //Log to give feedback on if the file exists....
             Log.d("titlesfiledelete", "file does not exist ");
@@ -246,9 +287,7 @@ public class Home extends AppCompatActivity {
     //Save Titles file code
     public void saveFile () throws IOException {
         titlesFileDelete();
-        //listViewItems.clear(); *attempt at another way of clearing the file to then add to for re writing the file
-        titlesSaveFile = new File(this.getFilesDir(), "TitlesFile");
-        Log.d("file location", String.valueOf(titlesSaveFile));
+        titlesSaveFile = new File(this.getFilesDir(), titlesFile);
         FileWriter writer = new FileWriter(titlesSaveFile, true);
         int size = listViewItems.size();
         Log.d("System Out:Size", String.valueOf(size));
@@ -258,12 +297,10 @@ public class Home extends AppCompatActivity {
             writer.write(str + "\n");
         }
         writer.close();
-
-
     }
     //Load file code
     public void loadFile() {
-        File loadFile = getFileStreamPath("TitlesFile");
+        File loadFile = getFileStreamPath(titlesFile);
         if (loadFile.exists()){
             Log.d("System Out:LoadFile", "loadfile does exist!");
             try {

@@ -16,7 +16,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:hint="Plan 1"
-        android:editable="true" />
+        android:editable="true"
+        android:inputType="text"/>
 
     <Button
         android:layout_width="wrap_content"
