@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import junit.framework.Test;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DetailsAndSubLayer extends AppCompatActivity {
@@ -42,16 +46,12 @@ public class DetailsAndSubLayer extends AppCompatActivity {
 
 
     private LayerTitles subSaveFileDetail;
-
-
-    private ArrayList <String> titlesArray;
-    private String titlesCont = "";
-    private String title;
+    private LayerTitles fileName;
+    private String title; // need to keep as its referenced in bundle (Sort out later..)
     public int titleLayer;
-    public int titlePos;
-    private String saveFileCont;
     private int subTLay = 2;
-    private String loadFile;
+    private String subTTitle;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -60,8 +60,8 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        fileChecker();
 
-        titlesArray = new ArrayList<String>();
         listView = (ListView) findViewById(R.id.subTaskListView);
         subTaskTitle = new ArrayList <String>();
         arrayAdapter = new subTaskLayoutAdapter(this, R.layout.subtasklayout,subTaskTitle);
@@ -71,44 +71,29 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
-                String subTTitle;
+                //String subTTitle;
                 int titlePos;
                 titlePos = position;
                 subTTitle = subTaskTitle.get(position);
                 new bundle().bundleSubTLay(); //Run the check on subTlay value
-
-                //Savefile details intent version... wont allow for second layer same details.
-                intent.putExtra("title", subTTitle);
                 intent.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
-                intent.putExtra("titlePosition", titlePos);
 
                 // savefile details Class Version
-
-                // Creates the new object
-                subSaveFileDetail = new LayerTitles();
+                subSaveFileDetail = new LayerTitles();// Creates the new object
                 LayerTitles.setSubTitle(subTTitle);//Sends the sub title details to the layer title class
                 LayerTitles.setLayer(String.valueOf(subTLay)); //Sends the Layer to the other class
                 LayerTitles.setPosition(String.valueOf(titlePos)); // sends the position of the item in the arraylist to the save file class
-
-                String Tester;
                 subSaveFileDetail.addSubToArray();
-                Tester = subSaveFileDetail.arrayPull(); // 1st run of hometconc1... correctly works..
-                Log.d ("Tester", Tester);
-
-
                 startActivity(intent);
                 Toast.makeText(getApplicationContext(), "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
         });
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View view) {
                     // need to add in an adapter view
-                    //final int i = info.position;
                     final EditText editText = new EditText(DetailsAndSubLayer.this);
                     editText.setInputType(InputType.TYPE_CLASS_TEXT);
                     editText.setHint("Subtask 1");
@@ -118,6 +103,9 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     builder.setTitle("Add details or Subtask?");
                     builder.setPositiveButton("Add Details", new DialogInterface.OnClickListener(){
                         public void onClick(DialogInterface dialogue, int id){
+                            Intent intent = new Intent(DetailsAndSubLayer.this, AddDetails.class);
+                            intent.putExtra("subTitle", subTTitle);// add in the title details for title....
+                            startActivity(intent);// will need to start activity for result....
                             Snackbar.make(view,"Something needs to be added....", Snackbar.LENGTH_SHORT).show();
                         }
                     });
@@ -156,7 +144,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         loadSubTitleFile();
     }
 
-
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
         menu.add(0, v.getId(), 0, "Edit");
         menu.add(0, v.getId(), 0, "Delete");
@@ -183,7 +170,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    //titlesLineEdit();
+                    // needs a file delete and lower file delete method to get rid of the files below what is being deleted
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
@@ -226,8 +213,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         return  true;
 
     }
-
-
     public class subTaskLayoutAdapter extends ArrayAdapter<String>{
         private int layout;
         public subTaskLayoutAdapter(Context context, int resource, List<String> objects){
@@ -247,8 +232,14 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             }
             mainViewHolder = (subTaskLayoutRef) convertView.getTag();
             mainViewHolder.subTitle.setText(getItem(position));
+            //toolbar implementation need changing to allow for proper use...
+            /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            if (toolbar != null) {
+                toolbar.setTitle(getFileName());
+            }*/
+
             return convertView;
-        }
+            }
 
     }
     //Class to reference the subtask layout file.
@@ -256,14 +247,39 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         TextView subTitle;
         TextView subDetail;
     }
+
+    //Gets the layer from the previous levels to allow for filename key generation...
+    public class bundle {
+        public void getBundle() {
+            title=null;
+            Bundle extras = getIntent().getExtras();
+            if(extras!=null){
+                titleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
+            }
+        }
+        public int bundleSubTLay(){
+            getBundle();
+            if (titleLayer == subTLay){
+                subTLay = subTLay+1;
+            }
+            return subTLay;
+        }
+    }
+    public void fileChecker(){
+        String path = String.valueOf(this.getFilesDir());
+        File file = new File(path);
+        File[] files = file.listFiles();
+        String fileName;
+        fileName = Arrays.toString(files);
+        fileName.replace(String.valueOf(getFilesDir()),"");
+        Log.d("FileList", fileName);
+    }
+
     //deletes entire titles file
     public void fileDelete (){
-        new bundle().bundleFileCont();
-
-        String fileDelete = saveFileCont;//saveFileName(); // for Layered Title class...
-
-        //String fileDir = saveFileCont; //need to get the filename... (probs not needed)
-        File deleteFile = new File(this.getFilesDir(),"/" + fileDelete);// need a file to give the reader....
+        String deleteFileName = getFileName();
+        Log.d("DeleteFile", deleteFileName);
+        File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileName);// need a file to give the reader....
         Log.d("delete: deletefile..", String.valueOf(deleteFile));
         if (!deleteFile.exists()){
             //Log to give feedback on if the file exists....
@@ -277,81 +293,34 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         }
     }
 
-    //Gets the position name & layer position from the bundle... the changes might work....
-    public class bundle {
-
-        public void getBundle() {
-        title=null;
-        Bundle extras = getIntent().getExtras();
-        if(extras!=null){
-            title = extras.getString("title"); // Gets the plan name from previous layer
-            titleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
-            titlePos = extras.getInt("titlePosition"); // gets the layer from the previous layer
-        }
+    public String getFileName(){ //returns the File name from LT method...
+        fileName = new LayerTitles();
+        String fileNameString;
+        String Tester;
+        fileName.setTitleFullConcat();
+        Tester = LayerTitles.getFinalFileConcat(); // 1st run of hometconc1... correctly works..
+        Log.d ("filenameTester", Tester);
+        fileNameString = LayerTitles.getFinalFileConcat();
+        return fileNameString;
     }
-        public String bundleString(){
-            getBundle();
-            return title;
-        }
-        //Gets the subtask layer level
-        public int bundleInt(){
-            getBundle();
-            return titleLayer;
-        }
-        //gets the Array position
-        public int bundleArrayPos(){
-            getBundle();
-            return titlePos;
-        }
-        public int bundleSubTLay(){
-            getBundle();
-            if (titleLayer == subTLay){
-                subTLay = subTLay+1;
-            }
-            return subTLay;
-        }
-        public String bundleFileCont(){
-            bundleArrayPos();
-            bundleString();     //run the bundle to get the plan title from the previous layer
-            bundleInt();    //Removes file to create a new clean one
-            saveFileCont = title + Integer.toString(titleLayer)+ Integer.toString(titlePos); // concats the name and layer for unique code
 
-            titlesArray.add(saveFileCont);
-            return saveFileCont;
-        }
-        public String arrayFileCont(){
-            int size = titlesArray.size();
-            for (int i = 0; i < size; i++){
-                String Str = titlesArray.get(i);
-                titlesCont = titlesCont+Str;
-            }
-            return titlesCont;
-        }
-
-
+    @Override
+    public void onBackPressed(){
+        finish();
+        fileName = new LayerTitles();
+        fileName.arrayDeleteLast();
     }
-    public String saveFileName(){ //returns the File name from LT method...
-        LayerTitles saveclass = new LayerTitles();
-        //saveclass.setSubLConcat();
-        //saveclass.addHomeToArray(); 2nd run of homeTconc 1... null values...
-        //saveclass.addSubToArray();
-        //String fileName = saveclass.arrayPull();
-        //Log.d("file Name", fileName);
-        return null;
-    }
+
 
     //Save subtaskfileTitles for the subtask titles
     public void saveSubTitleFile () throws IOException {
         fileDelete();
-        //bundle savefile details...
-        new bundle().bundleFileCont();
-        new bundle().arrayFileCont();
+        String saveFileName = getFileName();
+        Log.d("SaveFileName", saveFileName);
+        //saveFileName = getBackButtonFileName();
+        //Log.d("SaveFileNameChecker", saveFileName);
 
-        //runs Method to get file name...
-        //String fileName2 = saveFileName();
-        //Log.d ("savefilename", fileName2);
-
-        subTaskFile = new File(this.getFilesDir(), /*fileName2*/saveFileCont);   //Creates file with the previous plan name and layer
+        subTaskFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
         FileWriter writer = new FileWriter(subTaskFile, true);
         int size = subTaskTitle.size();
         Log.d("Save file arraySize", String.valueOf(size));
@@ -365,12 +334,10 @@ public class DetailsAndSubLayer extends AppCompatActivity {
 
     //Load file code
     public void loadSubTitleFile() {
-        new bundle().bundleFileCont();
-        new bundle().arrayFileCont();
+        String loadFileName = getFileName();
+        Log.d("LoadFileName", loadFileName);
 
-        //String loadFileName = saveFileName(); // gets filename from the LT class... doesnt work...
-        //Log.d("loadfilename", loadFileName);
-        File loadFile = DetailsAndSubLayer.this.getFileStreamPath(saveFileCont); //loadFileName
+        File loadFile = DetailsAndSubLayer.this.getFileStreamPath(loadFileName); //loadFileName
         if (loadFile.exists()){
             Log.d("System Out:LoadFile", "loadfile does exist!");
             try {

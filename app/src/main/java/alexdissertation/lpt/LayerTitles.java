@@ -25,7 +25,7 @@ public class LayerTitles {
     private static String Position;
 
     private String titleFullConcat = "";
-
+    private static String finalFileConcat;
 
 
     // could group these together to concat...then add to arraylist... one method for home activ.. another for subt run them
@@ -35,7 +35,6 @@ public class LayerTitles {
        //Setters to set all of the values...
     public static void setHomeTitle(String HomeTitle){
         LayerTitles.HomeTitle = HomeTitle;
-        Log.d ("LayerTitle", HomeTitle);
     }
     public static void setHomeLayer() {
         LayerTitles.HomeLayer = String.valueOf(1);
@@ -46,7 +45,6 @@ public class LayerTitles {
 
     public static void setSubTitle(String subLTitle){
         LayerTitles.SubLTitle=subLTitle;
-        //titlesArray.add(title);
     }
     public static void setLayer(String Layer){
         LayerTitles.Layer=Layer;
@@ -58,59 +56,56 @@ public class LayerTitles {
     }
 
     //Concats of the details of the layer path
-    public String setHomeTitleConcat(){   //The Home activitys details
-        //TitleHomeConcat = ht+l+p;
+    public static String setHomeTitleConcat(){//The Home activitys details
         getHomeTitle();
         getHomeLayer();
         getHomePosition();
         TitleHomeConcat = HomeTitle+HomeLayer+HomePosition;
         return  TitleHomeConcat;
     }
-    public String setSubTitleConcat(){    //Sublayer details concat
+    public static String setSubTitleConcat(){    //Sublayer details concat
         getSubTitle();
         getLayer();
         getPosition();
         TitleSubLConcat = SubLTitle+Layer+Position;
         return TitleSubLConcat;
     }
-
-    //Claring the Array...
-    public void arrayClear(){
-        titlesArray.clear();
+    public void setTitleFullConcat(){
+        arrayPull();
+        finalFileConcat= titleFullConcat;
     }
-    //adding the Home details to the array
+
     public void addHomeToArray(){
         titlesArray.clear();
-        this.setHomeTitleConcat();
+        setHomeTitleConcat();
         getHomeTitleConcat();
         titlesArray.add(TitleHomeConcat);
-
     }
     public void addSubToArray(){
-        this.setSubTitleConcat();
+        setSubTitleConcat();
         getSubTitleConcat();
+        titlesArray.add(TitleSubLConcat);
         int i = titlesArray.size();
         String iValue = String.valueOf(i);
-        Log.d("Array Size", iValue);
-        Log.d("Layer ", getLayer());
-        Log.d("Layer -1", String.valueOf((Integer.parseInt(getLayer()))-1));
-        if (i == ((Integer.parseInt(getLayer()))-1)){
-            titlesArray.add(TitleSubLConcat);
+        if (i == ((Integer.parseInt(getLayer())))){
+            titlesArray.set(((Integer.parseInt(getLayer()))-1), TitleSubLConcat);
         }
-        else
-            titlesArray.set((Integer.parseInt(getLayer())-1), TitleSubLConcat);
-            //titlesArray.remove((Integer.parseInt(getLayer()))-1);
+        else if (i >((Integer.parseInt(getLayer())))) {
+            titlesArray.subList(Integer.parseInt(getLayer()),i).clear();
+            titlesArray.set(((Integer.parseInt(getLayer()))-1),TitleSubLConcat);
+        }
+        else titlesArray.add(TitleSubLConcat);
+
+    }
+    public void arrayDeleteLast(){
+        titlesArray.remove(titlesArray.size()-1);
     }
 
     public String arrayPull(){
         int size = titlesArray.size();
         for (int i = 0; i < size; i++) {
             String str = titlesArray.get(i);
-            String FullConc = titleFullConcat;
-            Log.d("Full Conc1", FullConc);
             titleFullConcat= titleFullConcat+str;
-            String Fullconc2 = titleFullConcat;
-            Log.d("FullConc2", Fullconc2);
         }
         return titleFullConcat;
     }
@@ -144,5 +139,11 @@ public class LayerTitles {
     public static String getSubTitleConcat(){
         return TitleSubLConcat;
     }
+
+    //full concat
+    public static String getFinalFileConcat(){
+        return finalFileConcat;
+    }
+
 }
 

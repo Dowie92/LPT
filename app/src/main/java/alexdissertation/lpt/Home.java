@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -41,7 +43,8 @@ public class Home extends AppCompatActivity {
     private String editTextString;
     private String titlesFile = "TitlesFile";
     private File titlesSaveFile;
-    private LayerTitles saveFileDetail = new LayerTitles();
+    private LayerTitles saveFileDetail;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -51,15 +54,42 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Home.this, AddPlanActivity.class);
-                startActivityForResult(intent, 1);
-            }
+        if (fab != null) {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    final EditText editText = new EditText(Home.this);
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                    editText.setHint("Plan1");
+                    //Alert Diag 2 (Adding Title)
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
+                    builder.setView(editText);
+                    builder.setTitle("Add Plan?");
+                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogue, int id) {
+                            String editTextValue = editText.getText().toString();
+                            listViewItems.add(editTextValue);
+                            arrayAdapt.notifyDataSetChanged();
+                            try {
+                                saveFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Snackbar.make(view, "Plan" + editTextValue + "Added", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogue, int id) {
+                            Snackbar.make(view, "Cancelled", Snackbar.LENGTH_SHORT).show();
+                            //User Clicked Cancel.. do nothing
+                        }
+                    });
+                    AlertDialog subTTitledialogue = builder.create();
+                    subTTitledialogue.show();
+                }
 
-        });
-
+            });
+        }
 
         listView = (ListView) findViewById(R.id.ListView);
         //Array of titles
@@ -77,44 +107,22 @@ public class Home extends AppCompatActivity {
                 title = listViewItems.get(position);
 
                 //Adds the home level details to LT Class
-                saveFileDetail.arrayClear();
+                saveFileDetail = new LayerTitles();
                 LayerTitles.setHomeTitle(title);
                 LayerTitles.setHomePosition(String.valueOf(titlePos));
                 LayerTitles.setHomeLayer();
                 saveFileDetail.addHomeToArray(); // adds the home title details to array when the part is clicked..
-                //String tester;
-                //tester = saveFileDetail.arrayPull();
-                //Log.d("Home Tester", tester);
-
+                saveFileDetail.setTitleFullConcat();
 
                //savefile details intent version...(Broken)
-                intent.putExtra("title",title);
                 intent.putExtra("titleLayer", 1); // will need to keep to allow for layer comparison method..
-                intent.putExtra("titlePosition", titlePos);
-
-
                 startActivity(intent);
                 Toast.makeText(Home.this, "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
             });
 
-        //clickCallBack();
         loadFile();
     }
-
-    /*public void sendHomeTitleDetails(int position1){
-        String title;
-        int titlePos;
-        titlePos = position1;
-        title = listViewItems.get(position1);
-
-        LayerTitles saveFileDetail = new LayerTitles();
-        //Adds the home level details to LT Class
-        saveFileDetail.setHomeTitle(title);
-        saveFileDetail.setPosition(String.valueOf(titlePos));
-        saveFileDetail.setLayer(String.valueOf(1));
-        saveFileDetail.addHomeToArray(); // adds the home title details to array when the part is clicked..
-    }*/
 
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
         menu.add(0, v.getId(), 0, "Edit");
@@ -207,18 +215,6 @@ public class Home extends AppCompatActivity {
                 convertView.setTag(titleViewLayoutRef);
             }
             mainViewHolder = (titleViewLayoutRef) convertView.getTag();
-            /*mainViewHolder.Save.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            saveFile();
-                            Toast.makeText(getContext(), "File Saved", Toast.LENGTH_SHORT).show();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(), "File not found", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });*/
             mainViewHolder.Title.setText(getItem(position));
             return convertView;
         }
@@ -231,7 +227,7 @@ public class Home extends AppCompatActivity {
     }
 
     //Gets the Data from the second Activity Data for the title
-   @Override
+   /*@Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data){
    super.onActivityResult(requestCode, resultCode, data);
        switch(requestCode){
@@ -249,27 +245,8 @@ public class Home extends AppCompatActivity {
        } catch (IOException e) {
            e.printStackTrace();
        }
-   }
+   }*/
 
-    /*
-    // onclick event for the listview items to give user feedback
-    private void clickCallBack() {
-        ListView list = (ListView) findViewById(R.id.ListView);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> paret, View viewClicked, int position, long id) {
-                TextView textView = (TextView) viewClicked;
-                String message = "You Clicked #" + position + " Which is string " + textView.getText().toString();
-                Toast.makeText(Home.this, message, Toast.LENGTH_LONG).show();
-            }
-        });
-    } */
-
-
-    //Editing individual item
-    public void titlesLineEdit(){
-
-
-    }
     //deletes entire titles file
     public void titlesFileDelete (){
         File deleteFile = new File(this.getFilesDir(), titlesFile);

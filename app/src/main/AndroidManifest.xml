@@ -19,13 +19,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddPlanActivity"
-            android:label="Add Plan"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".DetailsAndSubLayer"
             android:label="@string/title_activity_details_and_sub_layer"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddDetails"
+            android:label="@string/title_activity_add_details"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
     </application>
 
 </manifest>
