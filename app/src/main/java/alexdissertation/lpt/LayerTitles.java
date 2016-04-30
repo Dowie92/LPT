@@ -3,6 +3,7 @@ package alexdissertation.lpt;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -48,7 +49,6 @@ public class LayerTitles {
     }
     public static void setLayer(String Layer){
         LayerTitles.Layer=Layer;
-        //titlesArray.add(Layer);
     }
     public static void setPosition(String Position){
         LayerTitles.Position = Position;
@@ -89,6 +89,8 @@ public class LayerTitles {
         String iValue = String.valueOf(i);
         if (i == ((Integer.parseInt(getLayer())))){
             titlesArray.set(((Integer.parseInt(getLayer()))-1), TitleSubLConcat);
+            String s= String.valueOf(Integer.parseInt(getLayer())-1);
+            Log.d("LT-getL -1",s);
         }
         else if (i >((Integer.parseInt(getLayer())))) {
             titlesArray.subList(Integer.parseInt(getLayer()),i).clear();
@@ -96,6 +98,12 @@ public class LayerTitles {
         }
         else titlesArray.add(TitleSubLConcat);
 
+    }
+    // for testing
+    private static int arraySize;
+    public static int getArraySize(){
+        LayerTitles.arraySize = LayerTitles.titlesArray.size();
+        return arraySize;
     }
     public void arrayDeleteLast(){
         titlesArray.remove(titlesArray.size()-1);
@@ -105,7 +113,7 @@ public class LayerTitles {
         int size = titlesArray.size();
         for (int i = 0; i < size; i++) {
             String str = titlesArray.get(i);
-            titleFullConcat= titleFullConcat+str;
+            titleFullConcat = titleFullConcat+str;
         }
         return titleFullConcat;
     }

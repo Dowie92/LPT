@@ -104,6 +104,7 @@ public class Home extends AppCompatActivity {
                 String title;
                 int titlePos;
                 titlePos = position;
+                LayerTitles.setLayer(String.valueOf(2));
                 title = listViewItems.get(position);
 
                 //Adds the home level details to LT Class
@@ -114,7 +115,7 @@ public class Home extends AppCompatActivity {
                 saveFileDetail.addHomeToArray(); // adds the home title details to array when the part is clicked..
                 saveFileDetail.setTitleFullConcat();
 
-               //savefile details intent version...(Broken)
+               //sending the layer details onto Layer 2
                 intent.putExtra("titleLayer", 1); // will need to keep to allow for layer comparison method..
                 startActivity(intent);
                 Toast.makeText(Home.this, "List item clicked at " + position, Toast.LENGTH_SHORT).show();
@@ -226,39 +227,18 @@ public class Home extends AppCompatActivity {
         TextView Save;
     }
 
-    //Gets the Data from the second Activity Data for the title
-   /*@Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent data){
-   super.onActivityResult(requestCode, resultCode, data);
-       switch(requestCode){
-           case 1:
-       }
-       //gets the data from addtitle activity
-       editTextString = data.getStringExtra("editText");
-       //adds data to the array to go into the listview
-       listViewItems.add(editTextString);
-       //updates the listView
-       arrayAdapt.notifyDataSetChanged();
-       //Saves the file
-       try {
-           saveFile();
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-   }*/
-
     //deletes entire titles file
     public void titlesFileDelete (){
         File deleteFile = new File(this.getFilesDir(), titlesFile);
         if (!deleteFile.exists()){
             //Log to give feedback on if the file exists....
-            Log.d("titlesfiledelete", "file does not exist ");
+            //Log.d("titlesfiledelete", "file does not exist ");
         }
         else {
             //Deleting the file
            boolean DTF = deleteFile.delete();
             //Feedback file has been deleted.
-            Log.d("titlesFileDelete", "File Deleted");
+            //Log.d("titlesFileDelete", "File Deleted");
         }
     }
     //Save Titles file code
@@ -267,10 +247,10 @@ public class Home extends AppCompatActivity {
         titlesSaveFile = new File(this.getFilesDir(), titlesFile);
         FileWriter writer = new FileWriter(titlesSaveFile, true);
         int size = listViewItems.size();
-        Log.d("System Out:Size", String.valueOf(size));
+        //Log.d("System Out:Size", String.valueOf(size));
         for (int i = 0; i < size; i++) {
             String str = listViewItems.get(i);
-            Log.d("System Out:Str", str);
+            //Log.d("System Out:Str", str);
             writer.write(str + "\n");
         }
         writer.close();
@@ -279,13 +259,13 @@ public class Home extends AppCompatActivity {
     public void loadFile() {
         File loadFile = getFileStreamPath(titlesFile);
         if (loadFile.exists()){
-            Log.d("System Out:LoadFile", "loadfile does exist!");
+            //Log.d("System Out:LoadFile", "loadfile does exist!");
             try {
                 FileInputStream fileInputStream = new FileInputStream(loadFile);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
                 String message;
                 while ((message = bufferedReader.readLine()) !=null){
-                    Log.d("System Out:Str", message);
+                    //Log.d("System Out:Str", message);
                     listViewItems.add(message);
                     arrayAdapt.notifyDataSetChanged();
                 }
@@ -298,7 +278,7 @@ public class Home extends AppCompatActivity {
             }
         }
         else {
-            Log.d("System Out:load", "Loadfile does not exist");
+            //Log.d("System Out:load", "Loadfile does not exist");
         }
 
     }

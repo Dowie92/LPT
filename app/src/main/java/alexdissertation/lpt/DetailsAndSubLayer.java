@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     private LayerTitles subSaveFileDetail;
     private LayerTitles fileName;
     private String title; // need to keep as its referenced in bundle (Sort out later..)
-    public int titleLayer;
-    private int subTLay = 2;
+    public int homeTitleLayer;
+    private static int subTLay = 2;
     private String subTTitle;
 
 
@@ -60,8 +61,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fileChecker();
-
         listView = (ListView) findViewById(R.id.subTaskListView);
         subTaskTitle = new ArrayList <String>();
         arrayAdapter = new subTaskLayoutAdapter(this, R.layout.subtasklayout,subTaskTitle);
@@ -71,20 +70,27 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
-                //String subTTitle;
+
                 int titlePos;
                 titlePos = position;
                 subTTitle = subTaskTitle.get(position);
                 new bundle().bundleSubTLay(); //Run the check on subTlay value
+                Log.d("onClickBundleLayerVal", String.valueOf(subTLay));
                 intent.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
+                fileChecker();
 
                 // savefile details Class Version
                 subSaveFileDetail = new LayerTitles();// Creates the new object
                 LayerTitles.setSubTitle(subTTitle);//Sends the sub title details to the layer title class
                 LayerTitles.setLayer(String.valueOf(subTLay)); //Sends the Layer to the other class
+
                 LayerTitles.setPosition(String.valueOf(titlePos)); // sends the position of the item in the arraylist to the save file class
+                Log.d("onClick layerVal", String.valueOf(subTLay));
+                Log.d("onClick ArraySize", String.valueOf(LayerTitles.getArraySize()));
                 subSaveFileDetail.addSubToArray();
                 startActivity(intent);
+                DetailsAndSubLayer.backPressedTwice = false;
+                DetailsAndSubLayer.subLayBack = false;
                 Toast.makeText(getApplicationContext(), "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
         });
@@ -188,13 +194,25 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             builder.setMessage("Please confirm deleting this plan");
             builder.setTitle("Delete Plan");
             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
-                public void onClick(DialogInterface dialogue, int id) {
-                    //User Clicked on the Confirm button
-                    // Remove the listview item
-                    subTaskTitle.remove(i);
-                    arrayAdapter.notifyDataSetChanged();
+                public void onClick(DialogInterface dialogue, int id) {//User Clicked on the Confirm button
+                    String layer = LayerTitles.getLayer();
+                    layer = String.valueOf((Integer.parseInt(layer)+1));
+                    Log.d("Deletelistitemlayer", layer);
+                    if (LayerTitles.getLayer() == null){
+                        layer = String.valueOf(subTLay);
+                    }
+
+                    String getPath = getFileName();
+                    Log.d("getPath", getPath);
+                    String title = subTaskTitle.get(i);
+                    title = getPath+title+layer+i;
+                    Log.d("DeleteTitle", title);
+                    cascadeFileDelete(title);//runs the filechecker with the title for the files that it wants to delete
+                    fileChecker();
+                    subTaskTitle.remove(i); // Remove the listview item
+                    arrayAdapter.notifyDataSetChanged();    //updates the listview
                     try {
-                        saveSubTitleFile();
+                        saveSubTitleFile(); //re-saves the file above to keep the change
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -254,31 +272,80 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             title=null;
             Bundle extras = getIntent().getExtras();
             if(extras!=null){
-                titleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
+                homeTitleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
             }
         }
         public int bundleSubTLay(){
             getBundle();
-            if (titleLayer == subTLay){
+            if (homeTitleLayer == subTLay){
                 subTLay = subTLay+1;
             }
             return subTLay;
         }
     }
+    public void cascadeFileDelete(String t){
+        String path = String.valueOf(this.getFilesDir());
+        final String fileContains;
+        fileContains = t;
+        final File file = new File(path); // directory
+        FilenameFilter fileFilter = new FilenameFilter(){
+            @Override
+            public boolean accept(File dir, String fn) {
+                if (fn.contains(fileContains)){
+                    return true;
+                }
+                return false;
+            };
+
+        };
+        Log.d("fileFilter",String.valueOf(fileFilter));
+        File[] files = file.listFiles(fileFilter);
+        for (File file1 : files) {
+            Log.d("FileListToDelete", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
+            fileDelete(file1);
+
+        }
+
+    }
     public void fileChecker(){
         String path = String.valueOf(this.getFilesDir());
         File file = new File(path);
         File[] files = file.listFiles();
-        String fileName;
-        fileName = Arrays.toString(files);
-        fileName.replace(String.valueOf(getFilesDir()),"");
-        Log.d("FileList", fileName);
+        for (File file1 : files) {
+            Log.d("FileCheckerFileList", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
+        }
+
     }
+    /* might not be needed..
+    public void cascadeFileDelete(){
+        String path = String.valueOf(this.getFilesDir());
+        File file = new File(path);
+        File[] files = file.listFiles();
+        String fileName;
+        String newFileName;
+        fileName = Arrays.toString(files);
+        newFileName = fileName.replace(String.valueOf(getFilesDir()),"");
+        //Log.d("FileList", newFileName);
+    } */
 
     //deletes entire titles file
     public void fileDelete (){
         String deleteFileName = getFileName();
-        Log.d("DeleteFile", deleteFileName);
+        File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileName);// need a file to give the reader....
+        Log.d("delete: deletefile..", String.valueOf(deleteFile));
+        if (!deleteFile.exists()){
+            //Log to give feedback on if the file exists....
+            Log.d("Delete", "file does not exist ");
+        }
+        else {
+            //Deleting the file
+            boolean DTF = deleteFile.delete();
+            //Feedback file has been deleted.
+            Log.d("Delete", "File Deleted");
+        }
+    }
+    public void fileDelete (File fileName){
+        File deleteFileName = fileName;
         File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileName);// need a file to give the reader....
         Log.d("delete: deletefile..", String.valueOf(deleteFile));
         if (!deleteFile.exists()){
@@ -296,37 +363,63 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     public String getFileName(){ //returns the File name from LT method...
         fileName = new LayerTitles();
         String fileNameString;
-        String Tester;
         fileName.setTitleFullConcat();
-        Tester = LayerTitles.getFinalFileConcat(); // 1st run of hometconc1... correctly works..
-        Log.d ("filenameTester", Tester);
         fileNameString = LayerTitles.getFinalFileConcat();
         return fileNameString;
     }
 
+    private static boolean backPressedTwice = false;
+    private static boolean subLayBack = false;
     @Override
     public void onBackPressed(){
-        finish();
+        finish(); //closes the activity...
         fileName = new LayerTitles();
-        fileName.arrayDeleteLast();
-    }
+        fileName.arrayDeleteLast(); // removes the last position in the name for the savefile when using back button
+        String backLayerString;
 
+        if (!subLayBack) {
+            String subTLayBack = LayerTitles.getLayer();
+            if (Integer.parseInt(subTLayBack) == 1);
+            else {
+                DetailsAndSubLayer.subTLay = (Integer.parseInt(subTLayBack) - 1);
+                Log.d("BackSubTlay", String.valueOf(subTLay));
+                subLayBack = true;
+            }
+        }
+
+        if (backPressedTwice) {
+            super.onBackPressed();
+            backLayerString = LayerTitles.getLayer();
+            int backLayerInt = Integer.parseInt(backLayerString); //cast the value to an int
+            backLayerInt = backLayerInt -1; // changes the int value to be the correct layer
+            LayerTitles.setLayer(String.valueOf(backLayerInt)); // resets it to a string and passes it back to the LayerTitles class
+
+            if (subLayBack){
+                String subTLayBack= LayerTitles.getLayer();;
+                if (Integer.parseInt(subTLayBack) == 1);
+                else{
+                    DetailsAndSubLayer.subTLay = (Integer.parseInt(subTLayBack)-1);
+                    Log.d("BackSubTlayTwice", String.valueOf(subTLay));
+                }
+            }
+        }
+        DetailsAndSubLayer.backPressedTwice = true;
+    }
 
     //Save subtaskfileTitles for the subtask titles
     public void saveSubTitleFile () throws IOException {
         fileDelete();
         String saveFileName = getFileName();
-        Log.d("SaveFileName", saveFileName);
-        //saveFileName = getBackButtonFileName();
-        //Log.d("SaveFileNameChecker", saveFileName);
+        Log.d("Save Layer", LayerTitles.getLayer());
+        Log.d("Save ArraySize", String.valueOf(LayerTitles.getArraySize()));
 
         subTaskFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
         FileWriter writer = new FileWriter(subTaskFile, true);
         int size = subTaskTitle.size();
-        Log.d("Save file arraySize", String.valueOf(size));
+        //Log.d("Save file arraySize", String.valueOf(size));
         for (int i = 0; i < size; i++) {
             String str = subTaskTitle.get(i);
-            Log.d("saveFile Output", str);
+            //Log.d("saveFile Output", str);
             writer.write(str + "\n");
         }
         writer.close();
@@ -335,11 +428,11 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     //Load file code
     public void loadSubTitleFile() {
         String loadFileName = getFileName();
-        Log.d("LoadFileName", loadFileName);
+        Log.d("DASL-LoadFileName", loadFileName);
 
         File loadFile = DetailsAndSubLayer.this.getFileStreamPath(loadFileName); //loadFileName
         if (loadFile.exists()){
-            Log.d("System Out:LoadFile", "loadfile does exist!");
+            //Log.d("System Out:LoadFile", "loadfile does exist!");
             try {
                 FileInputStream fileInputStream = new FileInputStream(loadFile);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
@@ -356,7 +449,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             }
         }
         else {
-            Log.d("System Out:load", "Loadfile does not exist");
+            //.d("System Out:load", "Loadfile does not exist");
         }
 
     }
