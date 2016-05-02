@@ -6,11 +6,12 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="alexdissertation.lpt.DetailsAndSubLayer"
-    tools:showIn="@layout/activity_details_and_sub_layer">
+    tools:showIn="@layout/activity_details_and_sub_layer"
+    android:baselineAligned="false">
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/subTaskListView"/>
 
 </LinearLayout>

@@ -9,7 +9,77 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="alexdissertation.lpt.AddDetails"
-    tools:showIn="@layout/activity_add_details">
+    tools:context="alexdissertation.lpt.AddDetails">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Date"
+        android:id="@+id/dateText"
+        android:layout_alignTop="@+id/calendarView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Time"
+        android:id="@+id/timeSetter"
+        android:layout_alignBottom="@+id/calendarView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:id="@+id/titleText"
+        android:layout_marginTop="66dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleSetter"
+        android:layout_alignBottom="@+id/titleText"
+        android:hint="Title for the details"
+        android:editable="true"
+        android:layout_centerHorizontal="true" />
+
+    <CalendarView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/calendarView"
+        android:layout_below="@+id/titleText"
+        android:layout_alignLeft="@+id/titleSetter"
+        android:layout_alignStart="@+id/titleSetter"
+        android:layout_marginTop="50dp" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/calendarView"
+        android:layout_alignStart="@+id/calendarView" >
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/editText" />
+    </ScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details"
+        android:id="@+id/DetailsText"
+        android:layout_alignTop="@+id/scrollView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -25,9 +25,8 @@
         <activity
             android:name=".AddDetails"
             android:label="@string/title_activity_add_details"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".Details"></activity>
     </application>
 
 </manifest>
