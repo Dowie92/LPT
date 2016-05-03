@@ -54,6 +54,7 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -212,7 +213,7 @@ public class Home extends AppCompatActivity {
                 convertView = inflater.inflate(layout, parent, false);
                 titleViewLayoutRef titleViewLayoutRef = new titleViewLayoutRef();
                 titleViewLayoutRef.Title = (TextView) convertView.findViewById(R.id.titleTextView);
-                titleViewLayoutRef.Save = (TextView) convertView.findViewById(R.id.Save);
+
                 convertView.setTag(titleViewLayoutRef);
             }
             mainViewHolder = (titleViewLayoutRef) convertView.getTag();

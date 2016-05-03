@@ -1,85 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/topScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    tools:showIn="@layout/activity_add_details"
     tools:context="alexdissertation.lpt.AddDetails">
 
-    <TextView
+    <LinearLayout
+    android:id="@+id/firstLinear"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="100dp">
+    <!--android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="alexdissertation.lpt.AddDetails"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        -->
+    <LinearLayout
+        android:id="@+id/secondLinear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Date"
-        android:id="@+id/dateText"
-        android:layout_alignTop="@+id/calendarView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        >
 
-    <TextView
+        <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Time"
-        android:id="@+id/timeSetter"
-        android:layout_alignBottom="@+id/calendarView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Title"
+        android:layout_height="40dp"
+        android:text="Title:"
         android:id="@+id/titleText"
-        android:layout_marginTop="66dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"/>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/titleSetter"
-        android:layout_alignBottom="@+id/titleText"
-        android:hint="Title for the details"
-        android:editable="true"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/Title"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"/>
 
-    <CalendarView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/calendarView"
-        android:layout_below="@+id/titleText"
-        android:layout_alignLeft="@+id/titleSetter"
-        android:layout_alignStart="@+id/titleSetter"
-        android:layout_marginTop="50dp" />
-
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/calendarView"
-        android:layout_alignStart="@+id/calendarView" >
-
-        <EditText
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:ems="10"
-            android:id="@+id/editText" />
-    </ScrollView>
+            android:text="Edit"
+            android:id="@+id/titleEditButton"
+            android:padding="20dp"
+            style="?android:attr/borderlessButtonStyle"/>
 
-    <TextView
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Details"
-        android:id="@+id/DetailsText"
-        android:layout_alignTop="@+id/scrollView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:id="@+id/thirdLayout"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add start date:"
+            android:id="@+id/startDateText"
+            android:padding="20dp"/>
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Date"
+            android:id="@+id/startDate"
+            android:padding="10dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/startDateButton"
+            android:drawableLeft="@android:drawable/ic_menu_today"
+            android:drawableStart="@android:drawable/ic_menu_today"
+            style="?android:attr/borderlessButtonStyle"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fourthLayout"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add end date:"
+            android:id="@+id/EndDateText"
+            android:padding="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Date"
+            android:id="@+id/endDate"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endDateButton"
+            android:drawableLeft="@android:drawable/ic_menu_today"
+            android:drawableStart="@android:drawable/ic_menu_today"
+            style="?android:attr/borderlessButtonStyle"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fifthLayout"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Time:"
+            android:id="@+id/timeSetter"
+            android:padding="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time...1:00 PM"
+            android:id="@+id/timeText"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/timeButton"
+            android:drawableLeft="@drawable/ic_access_time_black_24dp"
+            android:drawableStart="@drawable/ic_access_time_black_24dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:onClick="showTimePickerDialog" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sixthLayout"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        android:focusableInTouchMode="true"
+        android:focusable="true">
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details:"
+        android:id="@+id/DetailsText"
+        android:padding="20dp"
+        />
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView">
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="20"
+                android:id="@+id/editText"/>
+        </ScrollView>
+
+    </LinearLayout>
+</LinearLayout>
+    </ScrollView>
+

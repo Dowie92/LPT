@@ -48,6 +48,8 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     //private ListView detailsView;
     private ListView listView;
 
+    private String loadFileName;
+
 
     private File subTaskFile;
     private File Layer1Details;// for later...
@@ -74,48 +76,43 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         arrayAdapter = new subTaskLayoutAdapter(this, R.layout.subtasklayout,subTaskTitle);
         listView.setAdapter(arrayAdapter);
 
-        // code for the details view... might not be needed
-        //detailsView = (ListView) findViewById(R.id.subTaskDetailsView);
-        //subTaskDetails = new ArrayList<String>();
-        //detailsAdapter = new subTaskLayoutAdapter(this, R.layout.subtasklayout,subTaskDetails);
-        //detailsView.setAdapter(detailsAdapter);
-        /*detailsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(),Details.class);
-                // details need implementing
-                startActivity(intent);
-            }
-        });*/
         registerForContextMenu(listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
+                Log.d("loadfilename", loadFileName);
+                if (loadFileName.contains("D1Q0jyf6fJ")){
+                    // do something...
+                    //load the details activity...
+                    Intent intent = new Intent(getApplicationContext(), Details.class);
+                    startActivity(intent);
+                }
+                else{
+                    Intent intent = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
 
-                int titlePos;
-                titlePos = position;
-                subTTitle = subTaskTitle.get(position);
-                new bundle().bundleSubTLay(); //Run the check on subTlay value
-                Log.d("onClickBundleLayerVal", String.valueOf(subTLay));
-                intent.putExtra("subTTitle", subTTitle);
-                intent.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
-                fileChecker();
+                    int titlePos;
+                    titlePos = position;
+                    subTTitle = subTaskTitle.get(position);
+                    new bundle().bundleSubTLay(); //Run the check on subTlay value
+                    Log.d("onClickBundleLayerVal", String.valueOf(subTLay));
+                    intent.putExtra("subTTitle", subTTitle);
+                    intent.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
+                    fileChecker();
 
-                // savefile details Class Version
-                subSaveFileDetail = new LayerTitles();// Creates the new object
-                LayerTitles.setSubTitle(subTTitle);//Sends the sub title details to the layer title class
-                LayerTitles.setLayer(String.valueOf(subTLay)); //Sends the Layer to the other class
+                    // savefile details Class Version
+                    subSaveFileDetail = new LayerTitles();// Creates the new object
+                    LayerTitles.setSubTitle(subTTitle);//Sends the sub title details to the layer title class
+                    LayerTitles.setLayer(String.valueOf(subTLay)); //Sends the Layer to the other class
 
-                LayerTitles.setPosition(String.valueOf(titlePos)); // sends the position of the item in the arraylist to the save file class
-                Log.d("onClick layerVal", String.valueOf(subTLay));
-                Log.d("onClick ArraySize", String.valueOf(LayerTitles.getArraySize()));
-                subSaveFileDetail.addSubToArray();
-                startActivity(intent);
-                DetailsAndSubLayer.backPressedTwice = false;
-                DetailsAndSubLayer.subLayBack = false;
-                Toast.makeText(getApplicationContext(), "List item clicked at " + position, Toast.LENGTH_SHORT).show();
+                    LayerTitles.setPosition(String.valueOf(titlePos)); // sends the position of the item in the arraylist to the save file class
+                    Log.d("onClick layerVal", String.valueOf(subTLay));
+                    Log.d("onClick ArraySize", String.valueOf(LayerTitles.getArraySize()));
+                    subSaveFileDetail.addSubToArray();
+                    startActivity(intent);
+                    DetailsAndSubLayer.backPressedTwice = false;
+                    DetailsAndSubLayer.subLayBack = false;
+                    Toast.makeText(getApplicationContext(), "List item clicked at " + position, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -188,7 +185,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         menu.add(0, v.getId(), 0, "Edit");
         menu.add(0, v.getId(), 0, "Delete");
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) MenuInfo;
-        menu.setHeaderTitle(subTaskTitle.get(info.position));
+        menu.setHeaderTitle("Edit or Delete"+" "+subTaskTitle.get(info.position));
     }
     public boolean onContextItemSelected(MenuItem item){
         final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
@@ -494,7 +491,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
 
     //Load file code
     public void loadSubTitleFile() {
-        String loadFileName = getFileName();
+        loadFileName = getFileName();
         Log.d("DASL-LoadFileName", loadFileName);
 
         File loadFile = DetailsAndSubLayer.this.getFileStreamPath(loadFileName); //loadFileName
