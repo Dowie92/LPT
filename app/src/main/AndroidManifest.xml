@@ -26,8 +26,12 @@
             android:name=".AddDetails"
             android:label="@string/title_activity_add_details"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
-        <activity android:name=".Details"></activity>
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".Details" />
+        <activity
+            android:name=".Detail"
+            android:label="@string/title_activity_detail"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -50,7 +50,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
 
     private String loadFileName;
 
-
     private File subTaskFile;
     private File Layer1Details;// for later...
 
@@ -80,35 +79,38 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("loadfilename", loadFileName);
-                if (loadFileName.contains("D1Q0jyf6fJ")){
-                    // do something...
+                int titlePos;
+                titlePos = position;
+                subTTitle = subTaskTitle.get(position);
+
+                if (subTaskTitle.get(position).contains("D1Q0jyf6fJ")){
                     //load the details activity...
-                    Intent intent = new Intent(getApplicationContext(), Details.class);
-                    startActivity(intent);
+                    Intent intentDetails = new Intent(getApplicationContext(), Detail.class);
+                    new bundle().getBundleSubTTitle();
+                    Log.d ("deetsOCsubTlay", String.valueOf(subTLay));// need to check this doesnt impact the layer system when using back from the previous layer
+                    intentDetails.putExtra("lastTitle", subTTitle);
+                    intentDetails.putExtra("lastLayer", String.valueOf(subTLay));
+                    intentDetails.putExtra("lastPos", String.valueOf(position));
+
+                    startActivity(intentDetails);
+
+
                 }
                 else{
-                    Intent intent = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
-
-                    int titlePos;
-                    titlePos = position;
-                    subTTitle = subTaskTitle.get(position);
+                    Intent intentDASL = new Intent(getApplicationContext(), DetailsAndSubLayer.class);
                     new bundle().bundleSubTLay(); //Run the check on subTlay value
-                    Log.d("onClickBundleLayerVal", String.valueOf(subTLay));
-                    intent.putExtra("subTTitle", subTTitle);
-                    intent.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
-                    fileChecker();
-
+                    intentDASL.putExtra("subTTitle", subTTitle); //To pass the subtitle value onto the add details class for the title + details...
+                    intentDASL.putExtra("titleLayer", subTLay); //will need to keep for layer comparison method... (for now)
+                    fileChecker(); // here just to show a list of files
                     // savefile details Class Version
                     subSaveFileDetail = new LayerTitles();// Creates the new object
                     LayerTitles.setSubTitle(subTTitle);//Sends the sub title details to the layer title class
                     LayerTitles.setLayer(String.valueOf(subTLay)); //Sends the Layer to the other class
-
                     LayerTitles.setPosition(String.valueOf(titlePos)); // sends the position of the item in the arraylist to the save file class
                     Log.d("onClick layerVal", String.valueOf(subTLay));
                     Log.d("onClick ArraySize", String.valueOf(LayerTitles.getArraySize()));
                     subSaveFileDetail.addSubToArray();
-                    startActivity(intent);
+                    startActivity(intentDASL);
                     DetailsAndSubLayer.backPressedTwice = false;
                     DetailsAndSubLayer.subLayBack = false;
                     Toast.makeText(getApplicationContext(), "List item clicked at " + position, Toast.LENGTH_SHORT).show();
@@ -133,7 +135,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                             Intent intent = new Intent(DetailsAndSubLayer.this, AddDetails.class);
                             intent.putExtra("subTitle", subTTitle);// add in the title details for title....
                             String detailsTitle = new bundle().getBundleSubTTitle();
-                            detailsTitle = detailsTitle +" "+"Details";
+                            detailsTitle = detailsTitle+"details"+"D1Q0jyf6fJ";
                             subTaskTitle.add(detailsTitle);
                             arrayAdapter.notifyDataSetChanged();
                             try {
@@ -227,7 +229,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialogue, int id) {//User Clicked on the Confirm button
                     String layer = LayerTitles.getLayer();
-                    Log.d("LT-Deletelistitemlayer", layer);
                     if (LayerTitles.getLayer() == null){
                         layer = String.valueOf(subTLay);
                         Log.d("DTSL-deleteListLayer", layer);
@@ -235,7 +236,14 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     String getPath = getFileName();
                     Log.d("getPath", getPath);
                     String title = subTaskTitle.get(i);
-                    title = getPath+title+layer+i;
+                    if (title.contains("D1Q0jyf6fJ")){
+                        title = getPath+"detailsD1Q0jyf6fJ";
+                    }
+                    else {
+                        title = getPath + title + layer + i;
+                        Log.d("DeleteTitle", title);
+
+                    }
                     Log.d("DeleteTitle", title);
                     cascadeFileDelete(title);//runs the filechecker with the title for the files that it wants to delete
                     fileChecker();

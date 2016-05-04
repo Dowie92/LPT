@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -173,9 +174,25 @@ public class Home extends AppCompatActivity {
             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialogue, int id) {
                     //User Clicked on the Confirm button
+                    String layer = String.valueOf(1);
+                    String getTitle = listViewItems.get(i);
+                    Log.d("homeDel Title", getTitle);
+                    cascadeFileDelete(getTitle);
+
                     // Remove the listview item
                     listViewItems.remove(i);
                     arrayAdapt.notifyDataSetChanged();
+                    for (String newPositionName: listViewItems){ //gets the items left in the arraylist
+                        //creates the old position Name and the new position name
+                        String oldPositionName;
+                        int lastPos = listViewItems.indexOf(newPositionName);
+                        oldPositionName = newPositionName+layer+(lastPos+1);
+                        newPositionName = newPositionName+layer+lastPos;
+                        Log.d("oldPositionName", oldPositionName);
+                        Log.d("newPoitionName", newPositionName);
+
+                        cascadeFileRename(oldPositionName,newPositionName);
+                    }
                     try {
                         saveFile();
                     } catch (IOException e) {
@@ -194,6 +211,59 @@ public class Home extends AppCompatActivity {
             dialogue.show();
         }
         return  true;
+
+    }
+
+    public void cascadeFileRename(String oldpositionName, String newPositionName){// for renaming the subtasks that are moved up - with the new ArrayPosition
+        String path = String.valueOf(this.getFilesDir());
+        final String fileContains= oldpositionName;
+        final String newFileContains = newPositionName;
+        String newFileName;
+        File newFile;
+        final File file = new File(path); // directory
+        FilenameFilter fileFilter = new FilenameFilter(){
+            @Override
+            public boolean accept(File dir, String fn) {
+                if (fn.contains(fileContains)){
+                    return true;
+                }
+                return false;
+            };
+
+        };
+        File[] files = file.listFiles(fileFilter);
+        for (File file1 : files) {
+            Log.d("FileListToRename", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
+            newFileName = String.valueOf(file1).replace(fileContains,newFileContains);
+            Log.d("newFileName",newFileName);
+            newFile = new File(newFileName);
+            file1.renameTo(newFile); // changes the filename..
+        }
+
+    }
+
+    //cascade delete to delete all the files that are linked under a plan
+    public void cascadeFileDelete(String t){// deleting all of the files that are linked to the item
+        String path = String.valueOf(this.getFilesDir()); //The file Path
+        final String fileContains; //Item being deleted
+        fileContains = t;
+        final File file = new File(path); // Creating object for files in the directory
+        FilenameFilter fileFilter = new FilenameFilter(){ // filter to get only the files that are linked to the object
+            @Override
+            public boolean accept(File dir, String fn) {
+                if (fn.contains(fileContains)){ //if it contains the item being deleted
+                    return true;
+                }
+                return false;
+            };
+
+        };
+        File[] files = file.listFiles(fileFilter); //Creates an arraylist of files that are connected to the item
+        for (File file1 : files) { //Loop to delete the files
+            Log.d("FileListToDelete", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
+            titlesFileDelete(file1); //deletes the files
+
+        }
 
     }
 
@@ -240,6 +310,21 @@ public class Home extends AppCompatActivity {
            boolean DTF = deleteFile.delete();
             //Feedback file has been deleted.
             //Log.d("titlesFileDelete", "File Deleted");
+        }
+    }
+    public void titlesFileDelete (File fileName){
+        String deleteFileNameString = String.valueOf(fileName).replace(String.valueOf(getFilesDir()), "");
+        File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileNameString);// need a file to give the reader....
+        Log.d("delete: deletefile..", String.valueOf(deleteFile));
+        if (!deleteFile.exists()){
+            //Log to give feedback on if the file exists....
+            Log.d("Delete", "file does not exist ");
+        }
+        else {
+            //Deleting the file
+            boolean DTF = deleteFile.delete();
+            //Feedback file has been deleted.
+            Log.d("Delete", "File Deleted");
         }
     }
     //Save Titles file code

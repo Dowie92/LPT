@@ -41,7 +41,7 @@ public class AddDetails extends AppCompatActivity {
     private String time;
 
     private File detailsFile;
-    private ArrayList <String> details;
+    private ArrayList <String> details = new ArrayList<String>();
 
     private static TextView titleTextView;
     private static TextView startDateTextView;
@@ -66,6 +66,9 @@ public class AddDetails extends AppCompatActivity {
         startCalendarbuilder.setMessage("Select a Start Date");
         startCalendarbuilder.setView(calendarView);
 
+
+        arrayListChecker();
+
         Calendar c = Calendar.getInstance();
         final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         startDate = dateFormat.format(c.getTime());
@@ -76,7 +79,7 @@ public class AddDetails extends AppCompatActivity {
 
 
         titleTextView = (TextView)findViewById(R.id.Title);
-        title = new detailsBundle().bundlePrevLayerTitle();
+        title = new addDetailsBundle().bundlePrevLayerTitle();
         if (titleTextView != null) {
             titleTextView.setText(title);
         }
@@ -253,7 +256,7 @@ public class AddDetails extends AppCompatActivity {
     }
 
     // need a bundle handler to get the title Details
-    public class detailsBundle{
+    public class addDetailsBundle{
         private String bundlePrevLayerTitle;
         public void getBundle(){
             //prevLayerTitle = null;
@@ -265,7 +268,7 @@ public class AddDetails extends AppCompatActivity {
         }
         public String bundlePrevLayerTitle(){
             getBundle();
-
+            bundlePrevLayerTitle = bundlePrevLayerTitle.replace("D1Q0jyf6fJ","");
             return bundlePrevLayerTitle;
         }
 
@@ -283,29 +286,48 @@ public class AddDetails extends AppCompatActivity {
         return fileNameString;
 
     }
+
+    public void arrayListChecker(){
+        int size = details.size();
+        for(int i=0; i<size; i++){
+            String arrayVal = details.get(i);
+            Log.d("AddDetailArrayVal", arrayVal);
+        }
+
+    }
     public void getDetails(){// gets all of the details and adds it to an array list to go into a file
-        details = new ArrayList<String>();
+        details.clear();
+        int addDetailsArraySize = details.size();
+        Log.d("addDetailsArraySize", String.valueOf(addDetailsArraySize));
+        Log.d("^^size should be", "0 here^^");
+
         String title = String.valueOf(titleTextView.getText());
+        Log.d("AddDTitle", title);
         details.add(title);
         String sDate = String.valueOf(startDateTextView.getText());
+        Log.d("AddDSDate", sDate);
         details.add(sDate);
         String eDate = String.valueOf(endDateTextView.getText());
+        Log.d("AddDEDate", eDate );
         details.add(eDate);
         String time = String.valueOf(timeTextView.getText());
+        Log.d("AddDTime", time);
         details.add(time);
     }
     public void detailsSaveFile() throws IOException {
         getFileName();
         getDetails();
-        String saveFileName = getFileName()+"Details"+"D1Q0jyf6fJ";
+        String saveFileName = getFileName()+"D1Q0jyf6fJ";
         Log.d("detailsSaveFN", saveFileName);
         detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
         FileWriter writer = new FileWriter(detailsFile, true);
         int size = details.size(); // calling an array....
+        Log.d("addDSavearraysize", String.valueOf(size));
+
         //Log.d("Save file arraySize", String.valueOf(size));
         for (int i = 0; i < size; i++) { // adding the array to the file
             String str = details.get(i);
-            //Log.d("saveFile Output", str);
+            Log.d("saveFile Output", str);
             writer.write(str + "\n");
         }
         writer.close();
