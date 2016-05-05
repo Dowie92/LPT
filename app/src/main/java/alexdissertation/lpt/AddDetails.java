@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,12 +23,10 @@ import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
-
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,7 +49,7 @@ public class AddDetails extends AppCompatActivity {
     private static String dateSelected;
     private static String buttonUsed;
 
-    public static void setDateDelected(String t){
+    public static void setDateSelected(String t){
         AddDetails.dateSelected = t;
     }
 
@@ -70,7 +69,7 @@ public class AddDetails extends AppCompatActivity {
         arrayListChecker();
 
         Calendar c = Calendar.getInstance();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         startDate = dateFormat.format(c.getTime());
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         time = timeFormat.format(c.getTime());
@@ -169,6 +168,11 @@ public class AddDetails extends AppCompatActivity {
         Log.d("buttonUsed",buttonUsed);
     }
 
+    public void showDatePickerDialog() {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
     // sets up the time selector to be called when the button is pressed
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener{
         @Override
@@ -203,31 +207,81 @@ public class AddDetails extends AppCompatActivity {
             // Create a new instance of DatePickerDialog and return it
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
+        //
+        public void onDateSet(DatePicker view, int year, int month, int day) {// sets the date selected
+            boolean dateCheck = false;
             // Do something with the date chosen by the user
-            //needs to be able to tell which date picker was selected....
-            if (day <10){
+            if (day <10){ // adds a 0 infront of the day if it is <10
                 day = Integer.parseInt("0")+day;
             }
-            if (month<10){
+            if (month<10){ //adds a 0 infront of the month is it is ,10
                 month = Integer.parseInt("0")+month;
             }
             StringBuilder someDate = new StringBuilder().append(day).append("/").append(month+1).append("/").append(year);
             String aDate = String.valueOf(someDate);
             Log.d ("anotherDate", aDate);
-            AddDetails.setDateDelected(aDate);
+            AddDetails.setDateSelected(aDate); //sets the value of dateSelected
+
             Log.d("buttonusedfinal", buttonUsed);
             if (buttonUsed != null) {
                 if (buttonUsed.equals("startDateButton")) {
                     startDateTextView.setText(dateSelected);
+                    endDateTextView.setText(dateSelected);
                 }
                 if (buttonUsed.equals("endDateButton")) {
+                    // might need to parse it into a simpeDate format...
+                    final String startDate = String.valueOf(startDateTextView.getText());
+                    Log.d("start Date", startDate);
+                    Log.d ("aDate", aDate);
+
+                    if (startDate != null){
+                        try {
+                            dateCheck = isDateAfter(startDate, aDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d ("dateCheck", String.valueOf(dateCheck));
+                    }
+                    if (!dateCheck){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Warning:");
+                        builder.setCancelable(false);
+                        builder.setMessage("The end date that you have selected is before the start date\n\nPlease select a new end date");
+                        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogue, int id) {
+                                //Closes the Alert Dialog
+                                //need to get current date/time
+                                endDateTextView.setText(startDate);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+
+                    }
+                    else{
                     endDateTextView.setText(dateSelected);
+                    }
                 }
             }
 
         }
+    }
+    public static boolean isDateAfter(String startDate,String endDate) throws ParseException {
+
+            String sDF = "dd/MM/yyyy"; //
+            SimpleDateFormat df = new SimpleDateFormat(sDF);
+            Date date1 = df.parse(endDate);
+            Date startingDate = df.parse(startDate);
+            Log.d ("date 1", String.valueOf(date1));
+            Log.d ("date 2", String.valueOf(startingDate));
+
+
+            if (date1.after(startingDate)) {
+                return true;
+            }
+            else {
+                return false;
+            }
     }
 
     @Override

@@ -151,6 +151,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                                 intent.putExtra("subTitle", subTTitle);// add in the title details for title....
                                 String detailsTitle = new bundle().getBundleSubTTitle();
                                 detailsTitle = detailsTitle+"details"+"D1Q0jyf6fJ";
+                                //String detailsTitleSubString  = detailsTitle.replace("detailsD1Q0jyf6fJ"," Details");
                                 subTaskTitle.add(detailsTitle);
                                 arrayAdapter.notifyDataSetChanged();
                                 try {
@@ -159,7 +160,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                                 contains = false;
-                                Snackbar.make(view,"Something needs to be added....", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(view,"SnackbarExample", Snackbar.LENGTH_SHORT).show();
                                 intent.putExtra("detailsTitle", detailsTitle);
                                 startActivityForResult(intent, addDetailback);// will need to start activity for result....
                             }
@@ -168,7 +169,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(DetailsAndSubLayer.this);
                                 builder.setTitle("Warning:");
                                 builder.setCancelable(false);
-                                builder.setMessage("This layer contains a Detail section. There can only be one Detail section per layer");
+                                builder.setMessage("This layer contains a detail section. There can only be one detail section per layer");
                                 builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialogue, int id) {
                                         //Closes the Alert Dialog
@@ -363,7 +364,12 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                 convertView.setTag(subTaskLayoutRef);
             }
             mainViewHolder = (subTaskLayoutRef) convertView.getTag();
-            mainViewHolder.subTitle.setText(getItem(position));
+            String listTitle = getItem(position);
+            if (listTitle.contains("detailsD1Q0jyf6fJ")){
+                listTitle= listTitle.replace("detailsD1Q0jyf6fJ"," Details");
+            }
+            mainViewHolder.subTitle.setText(listTitle);
+            //mainViewHolder.subTitle.setText(getItem(position)); (Not needed)
             //toolbar implementation need changing to allow for proper use...
             /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
