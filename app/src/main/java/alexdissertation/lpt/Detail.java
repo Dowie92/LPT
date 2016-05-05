@@ -82,7 +82,6 @@ public class Detail extends AppCompatActivity {
         }
 
     }
-
     public String getFileName(){
         LayerTitles fileName = new LayerTitles();
         String fileNameString;
@@ -90,7 +89,7 @@ public class Detail extends AppCompatActivity {
         fileName.setTitleFullConcat();//runs LT class to set the filename
         Tester = LayerTitles.getFinalFileConcat(); // 1st run of hometconc1... correctly works..
         Log.d ("filenameTester", Tester);
-        fileNameString = LayerTitles.getFinalFileConcat()+"details0";
+        fileNameString = LayerTitles.getFinalFileConcat()+"detailsD1Q0jyf6fJ";
         return fileNameString;
     }
 

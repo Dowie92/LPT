@@ -38,21 +38,17 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class DetailsAndSubLayer extends AppCompatActivity {
     private ArrayList <String> subTaskTitle;
     private ArrayAdapter <String> arrayAdapter;
 
-    //private ArrayList <String> subTaskDetails;// arraylist for the details... might not be needed
-    //private ArrayAdapter <String> detailsAdapter; // was going to be an adapter for a special list for details...Might not be needed
-    //private ListView detailsView;
     private ListView listView;
 
     private String loadFileName;
 
     private File subTaskFile;
-    private File Layer1Details;// for later...
-
 
     private LayerTitles subSaveFileDetail;
     private LayerTitles fileName;
@@ -60,6 +56,9 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     public int homeTitleLayer;
     private static int subTLay = 2;
     private String subTTitle;
+    static final int addDetailback = 1;
+
+    private static boolean addBackUsed;
 
 
     @Override
@@ -74,6 +73,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         subTaskTitle = new ArrayList <String>();
         arrayAdapter = new subTaskLayoutAdapter(this, R.layout.subtasklayout,subTaskTitle);
         listView.setAdapter(arrayAdapter);
+
 
         registerForContextMenu(listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -132,20 +132,51 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     builder.setTitle("Add details or Subtask?");
                     builder.setPositiveButton("Add Details", new DialogInterface.OnClickListener(){
                         public void onClick(DialogInterface dialogue, int id){
-                            Intent intent = new Intent(DetailsAndSubLayer.this, AddDetails.class);
-                            intent.putExtra("subTitle", subTTitle);// add in the title details for title....
-                            String detailsTitle = new bundle().getBundleSubTTitle();
-                            detailsTitle = detailsTitle+"details"+"D1Q0jyf6fJ";
-                            subTaskTitle.add(detailsTitle);
-                            arrayAdapter.notifyDataSetChanged();
-                            try {
-                                saveSubTitleFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            // check needed to only allow for 1 per layer
+                            int size =  subTaskTitle.size();
+                            boolean contains = false;
+                            for (int i = 0; i <size; i++){
+                                String containsCheck;
+                                containsCheck = subTaskTitle.get(i);
+                                Log.d("Contains Check", containsCheck);
+                                if (containsCheck.contains("D1Q0jyf6fJ")){
+                                    contains = true;
+                                }
                             }
-                            Snackbar.make(view,"Something needs to be added....", Snackbar.LENGTH_SHORT).show();
-                            intent.putExtra("detailsTitle", detailsTitle);
-                            startActivity(intent);// will need to start activity for result....
+                            Log.d("ContainsVal", String.valueOf(contains));
+
+                            if (!contains){
+                                // code to add the details...
+                                Intent intent = new Intent(DetailsAndSubLayer.this, AddDetails.class);
+                                intent.putExtra("subTitle", subTTitle);// add in the title details for title....
+                                String detailsTitle = new bundle().getBundleSubTTitle();
+                                detailsTitle = detailsTitle+"details"+"D1Q0jyf6fJ";
+                                subTaskTitle.add(detailsTitle);
+                                arrayAdapter.notifyDataSetChanged();
+                                try {
+                                    saveSubTitleFile();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                contains = false;
+                                Snackbar.make(view,"Something needs to be added....", Snackbar.LENGTH_SHORT).show();
+                                intent.putExtra("detailsTitle", detailsTitle);
+                                startActivityForResult(intent, addDetailback);// will need to start activity for result....
+                            }
+                            else {
+                                //Create alert Dialog to give message that the layer already contains a detail section...
+                                AlertDialog.Builder builder = new AlertDialog.Builder(DetailsAndSubLayer.this);
+                                builder.setTitle("Warning:");
+                                builder.setCancelable(false);
+                                builder.setMessage("This layer contains a Detail section. There can only be one Detail section per layer");
+                                builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialogue, int id) {
+                                        //Closes the Alert Dialog
+                                    }
+                                });
+                                AlertDialog alert = builder.create();
+                                alert.show();
+                            }
                         }
                     });
                     builder.setNegativeButton("Add SubTask", new DialogInterface.OnClickListener(){
@@ -181,6 +212,38 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             });
         }
         loadSubTitleFile();
+    } // onCreate Method...
+
+    @Override
+    public void onActivityResult(int addDetailback, int resultCode, Intent data){
+        try {
+            super.onActivityResult(addDetailback, resultCode, data);
+            if(addDetailback == 1){
+                if (resultCode == AddDetails.RESULT_OK){
+                    DetailsAndSubLayer.addBackUsed = data.getBooleanExtra("backPressedTrue", false);
+                    Log.d ("addBackUsed Val", String.valueOf(DetailsAndSubLayer.addBackUsed));
+                    if (DetailsAndSubLayer.addBackUsed){
+                        deleteLastArrayPos();
+                    }
+                }
+            }
+
+        }catch (Exception ex){
+            Toast.makeText(DetailsAndSubLayer.this, "nothing sent back", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void deleteLastArrayPos(){
+        int i = subTaskTitle.size();
+        Log.d("AddDBack subT size", String.valueOf(i));
+        subTaskTitle.remove(i-1);
+        arrayAdapter.notifyDataSetChanged();
+        try {
+            saveSubTitleFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){

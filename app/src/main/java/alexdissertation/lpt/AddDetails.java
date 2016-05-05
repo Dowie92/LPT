@@ -139,6 +139,16 @@ public class AddDetails extends AppCompatActivity {
         });*/
     }
 
+
+    @Override
+    public void onBackPressed(){
+        boolean addBackPressed = true;
+        Intent data = new Intent();
+        data.putExtra("backPressedTrue", addBackPressed);
+        setResult(RESULT_OK, data);
+        finish();
+    }
+
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
