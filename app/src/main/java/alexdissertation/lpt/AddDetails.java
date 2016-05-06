@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ExpandableListView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -21,6 +22,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ExpandableListAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import java.io.File;
@@ -31,6 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class AddDetails extends AppCompatActivity {
@@ -38,6 +44,7 @@ public class AddDetails extends AppCompatActivity {
     private String startDate;
     //private String endDate; probs not needed
     private String time;
+    private String detailsText;
 
     private File detailsFile;
     private ArrayList <String> details = new ArrayList<String>();
@@ -46,8 +53,15 @@ public class AddDetails extends AppCompatActivity {
     private static TextView startDateTextView;
     private static TextView endDateTextView;
     private static TextView timeTextView;
+    private static EditText detailsEditText;
     private static String dateSelected;
     private static String buttonUsed;
+
+    private static ExpandableListAdapter expandableListAdapter;
+    private static ExpandableListView expandableListView;
+    private static List<String> listHeader;
+    private static HashMap<String,List<String>> listChild;
+
 
     public static void setDateSelected(String t){
         AddDetails.dateSelected = t;
@@ -65,8 +79,20 @@ public class AddDetails extends AppCompatActivity {
         startCalendarbuilder.setMessage("Select a Start Date");
         startCalendarbuilder.setView(calendarView);
 
+        //get the expandableListView
+        expandableListView = (ExpandableListView)findViewById(R.id.ChecklistexpandableListView);
+        //prepping list data...(Might not be needed)
+        prepareListData(); // class actually needed...
+
+        expandableListAdapter = new alexdissertation.lpt.ExpandableListView(this,listHeader,listChild);
+
+        //setting the List Adapter
+        expandableListView.setAdapter(expandableListAdapter);
+
+
 
         arrayListChecker();
+
 
         Calendar c = Calendar.getInstance();
         final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -94,6 +120,11 @@ public class AddDetails extends AppCompatActivity {
         timeTextView = (TextView)findViewById(R.id.timeText);
         if (timeTextView !=null){
             timeTextView.setText(time);
+        }
+
+        detailsEditText = (EditText)findViewById(R.id.detailsEditText);
+        if (detailsEditText !=null){
+            detailsEditText.setText(detailsText);
         }
 
         Button setTime = (Button)findViewById(R.id.timeButton);
@@ -136,8 +167,27 @@ public class AddDetails extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
-    }
+    }// oncreate method end
 
+    public void prepareListData (){
+        listHeader = new ArrayList<String>();
+        listChild = new HashMap<String, List<String>>();
+
+        //adding the child Data...
+        listHeader.add("CheckList");
+
+
+        //adding the child data...
+        List<String>CheckList = new ArrayList<String>();
+        CheckList.add("bla bla");
+        CheckList.add("does this work");
+        CheckList.add("Please work");
+        //need the create checklist....
+
+        //adding to the view
+        listChild.put(listHeader.get(0), CheckList);
+
+    }
 
     @Override
     public void onBackPressed(){
@@ -377,6 +427,9 @@ public class AddDetails extends AppCompatActivity {
         String time = String.valueOf(timeTextView.getText());
         Log.d("AddDTime", time);
         details.add(time);
+        String editTextDetails = String.valueOf(detailsEditText.getText());
+        Log.d("editTextDetails", editTextDetails);
+        details.add(editTextDetails);
     }
     public void detailsSaveFile() throws IOException {
         getFileName();

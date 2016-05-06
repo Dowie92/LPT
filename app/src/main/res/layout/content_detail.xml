@@ -171,7 +171,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
                     android:ems="20"
-                    android:id="@+id/editText"/>
+                    android:id="@+id/detailsEditText"/>
             </ScrollView>
 
         </LinearLayout>

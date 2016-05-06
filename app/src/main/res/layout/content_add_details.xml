@@ -174,10 +174,26 @@
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="20"
-                android:id="@+id/editText"/>
+                android:id="@+id/detailsEditText"/>
         </ScrollView>
 
     </LinearLayout>
-</LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/checkboxArea">
+
+            <ExpandableListView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ChecklistexpandableListView"
+                android:divider="#A4C739"
+                android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+                android:dividerHeight="1dp"
+                />
+        </LinearLayout>
+    </LinearLayout>
     </ScrollView>
 

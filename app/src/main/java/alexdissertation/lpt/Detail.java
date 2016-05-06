@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -26,6 +27,7 @@ public class Detail extends AppCompatActivity {
     private static TextView startDateTextView;
     private static TextView endDateTextView;
     private static TextView timeTextView;
+    private static EditText detailsEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,24 +65,45 @@ public class Detail extends AppCompatActivity {
     }
 
     public void populateDetails(){
+        int i = detailContent.size();
+
         titleTextView = (TextView)findViewById(R.id.Title);
-        if (titleTextView != null) {
+        /*if (titleTextView != null) {
+            titleTextView.setText(detailContent.get(0));
+        }*/
+        if (1 <= i) {
             titleTextView.setText(detailContent.get(0));
         }
-
         startDateTextView = (TextView)findViewById(R.id.startDate);
-        if (startDateTextView !=null){
+        /*if (startDateTextView !=null){
+            startDateTextView.setText(detailContent.get(1));
+        }*/
+        if (2<=i){
             startDateTextView.setText(detailContent.get(1));
         }
         endDateTextView = (TextView)findViewById(R.id.endDate);
-        if (endDateTextView !=null){
+        /*if (endDateTextView !=null){
+            endDateTextView.setText(detailContent.get(2));
+        }*/
+        if (3 <= i){
             endDateTextView.setText(detailContent.get(2));
         }
         timeTextView = (TextView)findViewById(R.id.timeText);
-        if (timeTextView !=null){
+        /*if (timeTextView !=null){
+            timeTextView.setText(detailContent.get(3));
+        }*/
+        if (4<=i){
             timeTextView.setText(detailContent.get(3));
         }
-
+        detailsEditText = (EditText)findViewById(R.id.detailsEditText);
+        /*if (detailsEditText != null){
+            detailsEditText.setText(detailContent.get(4));
+        }*/
+        if (5 == i){
+            if (detailContent.get(4)!= null){
+                detailsEditText.setText(detailContent.get(4));
+            }
+        }
     }
     public String getFileName(){
         LayerTitles fileName = new LayerTitles();
