@@ -165,35 +165,32 @@
         android:id="@+id/DetailsText"
         android:padding="20dp"
         />
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/scrollView">
-            <EditText
+        <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="20"
                 android:id="@+id/detailsEditText"/>
-        </ScrollView>
-
     </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/checkboxArea">
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/layoutInflator"
+            android:minHeight="100dp">
 
-            <ExpandableListView
+
+        <ExpandableListView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/ChecklistexpandableListView"
                 android:divider="#A4C739"
                 android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
                 android:dividerHeight="1dp"
-                />
+                android:minHeight="100dp" />
+
         </LinearLayout>
+
     </LinearLayout>
-    </ScrollView>
+</ScrollView>
 

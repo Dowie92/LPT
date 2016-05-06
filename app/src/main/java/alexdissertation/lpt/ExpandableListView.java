@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
 
@@ -26,8 +27,6 @@ public class ExpandableListView extends BaseExpandableListAdapter {
         this.listHeader = listHeader;
         this.listChild = listChild;
     }
-
-
     @Override
     public int getGroupCount() {
        return this.listHeader.size();
@@ -84,8 +83,10 @@ public class ExpandableListView extends BaseExpandableListAdapter {
             LayoutInflater infalInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.child_layout, null);
         }
-        TextView txtListChild = (TextView) convertView.findViewById(R.id.child_txt);
+        TextView txtListChild = (TextView) convertView.findViewById(R.id.checkBoxEditText);
         txtListChild.setText(childText);
+        CheckBox checkBox = (CheckBox)convertView.findViewById(R.id.checkBox);
+        //checkBox.setText(childText);
         return convertView;
     }
 

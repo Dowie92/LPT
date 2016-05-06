@@ -61,6 +61,7 @@ public class AddDetails extends AppCompatActivity {
     private static ExpandableListView expandableListView;
     private static List<String> listHeader;
     private static HashMap<String,List<String>> listChild;
+    private static EditText checkboxUserInput;
 
 
     public static void setDateSelected(String t){
@@ -79,6 +80,8 @@ public class AddDetails extends AppCompatActivity {
         startCalendarbuilder.setMessage("Select a Start Date");
         startCalendarbuilder.setView(calendarView);
 
+
+
         //get the expandableListView
         expandableListView = (ExpandableListView)findViewById(R.id.ChecklistexpandableListView);
         //prepping list data...(Might not be needed)
@@ -88,8 +91,6 @@ public class AddDetails extends AppCompatActivity {
 
         //setting the List Adapter
         expandableListView.setAdapter(expandableListAdapter);
-
-
 
         arrayListChecker();
 
@@ -157,36 +158,34 @@ public class AddDetails extends AppCompatActivity {
             });
         }
 
-
-        //All hardcoded aspects so removing the FAB.... for now...until the FAB can be utilised
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
     }// oncreate method end
 
     public void prepareListData (){
         listHeader = new ArrayList<String>();
         listChild = new HashMap<String, List<String>>();
-
-        //adding the child Data...
+        //adding the header Data...
         listHeader.add("CheckList");
-
-
         //adding the child data...
         List<String>CheckList = new ArrayList<String>();
-        CheckList.add("bla bla");
-        CheckList.add("does this work");
-        CheckList.add("Please work");
-        //need the create checklist....
-
+        CheckList.add(""); // adding the first one for the users to use
         //adding to the view
         listChild.put(listHeader.get(0), CheckList);
 
+    }
+    //might need to create a way to add another checklist box underneath the one that has been added...
+    //need an onClick to run this will
+    // probably need an ontouchlistener
+    public void checkListAdd(){
+        List<String>CheckList = new ArrayList<String>();
+        checkboxUserInput = (EditText)findViewById(R.id.checkBoxEditText);
+        String userInput = null;
+        if (checkboxUserInput !=null){
+            checkboxUserInput.setText(userInput);
+        }
+        Log.d("userInput", userInput);
+
+        CheckList.add(userInput);
+        listChild.put(listHeader.get(0), CheckList);
     }
 
     @Override
