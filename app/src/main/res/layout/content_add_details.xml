@@ -174,13 +174,44 @@
     </LinearLayout>
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/layoutInflator"
-            android:minHeight="100dp">
+            android:id="@+id/checkBoxLinear"
+            android:minHeight="100dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkBoxTitle"
+                android:text="Checklist:"
+                android:textSize="15sp"
+                android:textAlignment="textStart"
+                android:layout_gravity="start"
+                android:textStyle="bold"
+                android:padding="10dp"
+                />
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/firstCheckboxLinear"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/firstCheckbox"
+                    android:layout_gravity="bottom"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/firstCheckboxEditText"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:inputType="text"/>
+            </LinearLayout>
 
 
-        <ExpandableListView
+        <!--<ExpandableListView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/ChecklistexpandableListView"
@@ -188,6 +219,7 @@
                 android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
                 android:dividerHeight="1dp"
                 android:minHeight="100dp" />
+                -->
 
         </LinearLayout>
 

@@ -6,7 +6,17 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.text.InputType;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,6 +34,7 @@ import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -57,11 +68,17 @@ public class AddDetails extends AppCompatActivity {
     private static String dateSelected;
     private static String buttonUsed;
 
-    private static ExpandableListAdapter expandableListAdapter;
+    private static EditText checkBoxUserInput;
+    private static CheckBox firstCheckbox;
+    private static int checkListsize = 0;
+
+    //for the expandable list view and not needed at the moment
+    /*private static ExpandableListAdapter expandableListAdapter;
     private static ExpandableListView expandableListView;
     private static List<String> listHeader;
     private static HashMap<String,List<String>> listChild;
-    private static EditText checkboxUserInput;
+
+    private static String userInput;*/
 
 
     public static void setDateSelected(String t){
@@ -81,16 +98,13 @@ public class AddDetails extends AppCompatActivity {
         startCalendarbuilder.setView(calendarView);
 
 
-
         //get the expandableListView
-        expandableListView = (ExpandableListView)findViewById(R.id.ChecklistexpandableListView);
+        //expandableListView = (ExpandableListView)findViewById(R.id.ChecklistexpandableListView);
         //prepping list data...(Might not be needed)
-        prepareListData(); // class actually needed...
-
-        expandableListAdapter = new alexdissertation.lpt.ExpandableListView(this,listHeader,listChild);
-
+        //prepareListData(); // class actually needed...
+        //expandableListAdapter = new alexdissertation.lpt.ExpandableListView(this,listHeader,listChild);
         //setting the List Adapter
-        expandableListView.setAdapter(expandableListAdapter);
+        //expandableListView.setAdapter(expandableListAdapter);
 
         arrayListChecker();
 
@@ -102,6 +116,37 @@ public class AddDetails extends AppCompatActivity {
         time = timeFormat.format(c.getTime());
 
         Log.d("start Date", startDate);
+
+
+
+        firstCheckbox = (CheckBox)findViewById(R.id.firstCheckbox);
+        checkBoxUserInput = (EditText)findViewById(R.id.firstCheckboxEditText);// the first edit text...
+        checkBoxUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    // need to do something with the String inputs (to save)... add to an array
+                    checkListsize = checkListsize +1;
+                    updateCheckbox();
+                }
+                return false;
+            }
+        });
+        firstCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    checkBoxUserInput.setPaintFlags(checkBoxUserInput.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                }
+                else{
+                    checkBoxUserInput.setPaintFlags(0);
+                    //do nothing
+                }
+            }
+        });
+
 
 
         titleTextView = (TextView)findViewById(R.id.Title);
@@ -160,33 +205,97 @@ public class AddDetails extends AppCompatActivity {
 
     }// oncreate method end
 
+    /* expandable list view removed for now
     public void prepareListData (){
         listHeader = new ArrayList<String>();
         listChild = new HashMap<String, List<String>>();
-        //adding the header Data...
-        listHeader.add("CheckList");
-        //adding the child data...
+        listHeader.add("CheckList"); //adding the header Data...
         List<String>CheckList = new ArrayList<String>();
         CheckList.add(""); // adding the first one for the users to use
-        //adding to the view
-        listChild.put(listHeader.get(0), CheckList);
+        listChild.put(listHeader.get(0), CheckList);//adding to the view
 
-    }
-    //might need to create a way to add another checklist box underneath the one that has been added...
-    //need an onClick to run this will
-    // probably need an ontouchlistener
-    public void checkListAdd(){
-        List<String>CheckList = new ArrayList<String>();
-        checkboxUserInput = (EditText)findViewById(R.id.checkBoxEditText);
-        String userInput = null;
-        if (checkboxUserInput !=null){
-            checkboxUserInput.setText(userInput);
+    }*/
+
+    public void updateCheckbox(){
+        final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
+        final LinearLayout linearLayout = new LinearLayout(AddDetails.this);
+        linearLayout.setId(checkListsize);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (firstLinearLayout != null) {
+            firstLinearLayout.addView(linearLayout);
         }
-        Log.d("userInput", userInput);
 
-        CheckList.add(userInput);
-        listChild.put(listHeader.get(0), CheckList);
+        CheckBox checkBox = new CheckBox(AddDetails.this);
+        checkBox.setGravity(Gravity.BOTTOM);
+
+
+        final EditText editText = new EditText(AddDetails.this);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        editText.setGravity(Gravity.BOTTOM);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        final Button deleteButton = new Button(AddDetails.this);
+        deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
+        deleteButton.getBackground().setAlpha(0);
+        deleteButton.setVisibility(View.GONE);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.setVisibility(View.GONE);
+            }
+        });
+
+
+
+        linearLayout.addView(checkBox);
+        linearLayout.addView(editText);
+        linearLayout.addView(deleteButton);
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                }
+                else{
+                    checkBoxUserInput.setPaintFlags(0);
+                }
+            }
+        });
+
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    // need to do something with the String inputs (to save)... add to an array
+                    checkListsize = checkListsize +1;
+                    updateCheckbox();
+                }
+                return false;
+            }
+
+
+        });
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    deleteButton.setVisibility(View.VISIBLE);
+                }
+                else {
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
     }
+
 
     @Override
     public void onBackPressed(){

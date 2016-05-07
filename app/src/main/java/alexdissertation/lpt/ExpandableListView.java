@@ -1,15 +1,21 @@
 package alexdissertation.lpt;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -83,8 +89,23 @@ public class ExpandableListView extends BaseExpandableListAdapter {
             LayoutInflater infalInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.child_layout, null);
         }
-        TextView txtListChild = (TextView) convertView.findViewById(R.id.checkBoxEditText);
-        txtListChild.setText(childText);
+        final EditText checkBoxUserInput = (EditText) convertView.findViewById(R.id.checkBoxEditText);
+        checkBoxUserInput.setText(childText);
+        checkBoxUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    AddDetails ad = new AddDetails();
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    //ad.updateCheckbox(userInput);
+                    //checkboxUserInput.setText(userInput); //adds sets the edit text value
+                    //need to add another checkbox with editText
+
+                }
+                return false;
+            }
+        });
         CheckBox checkBox = (CheckBox)convertView.findViewById(R.id.checkBox);
         //checkBox.setText(childText);
         return convertView;
