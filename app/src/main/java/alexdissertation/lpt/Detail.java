@@ -1,13 +1,23 @@
 package alexdissertation.lpt;
 
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -29,6 +39,9 @@ public class Detail extends AppCompatActivity {
     private static TextView timeTextView;
     private static EditText detailsEditText;
 
+    private static EditText checkBoxUserInput;
+    private static CheckBox firstCheckbox;
+    private static int checkListsize = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,15 +59,127 @@ public class Detail extends AppCompatActivity {
         arrayListChecker();
         populateDetails();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        firstCheckbox = (CheckBox)findViewById(R.id.firstCheckbox);
+        checkBoxUserInput = (EditText)findViewById(R.id.firstCheckboxEditText);// the first edit text...
+        checkBoxUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    // need to do something with the String inputs (to save)... add to an array
+                    checkListsize = checkListsize +1;
+                    updateCheckbox();
+                }
+                return false;
+            }
+        });
+        firstCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    checkBoxUserInput.setPaintFlags(checkBoxUserInput.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                }
+                else{
+                    checkBoxUserInput.setPaintFlags(0);
+                    //do nothing
+                }
+            }
+        });
+
+        //Removing the FAB for now as it gets in the way...
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
+        });*/
+    } //onCreate method end
+
+
+    public void updateCheckbox(){
+        final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
+        final LinearLayout linearLayout = new LinearLayout(Detail.this);
+        linearLayout.setId(checkListsize);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (firstLinearLayout != null) {
+            firstLinearLayout.addView(linearLayout);
+        }
+
+        CheckBox checkBox = new CheckBox(Detail.this);
+        checkBox.setGravity(Gravity.BOTTOM);
+
+
+        final EditText editText = new EditText(Detail.this);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        editText.setGravity(Gravity.BOTTOM);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        final Button deleteButton = new Button(Detail.this);
+        deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
+        deleteButton.getBackground().setAlpha(0);
+        deleteButton.setVisibility(View.GONE);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.setVisibility(View.GONE);
+            }
         });
+
+
+
+        linearLayout.addView(checkBox);
+        linearLayout.addView(editText);
+        linearLayout.addView(deleteButton);
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                }
+                else{
+                    checkBoxUserInput.setPaintFlags(0);
+                }
+            }
+        });
+
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    // need to do something with the String inputs (to save)... add to an array
+                    checkListsize = checkListsize +1;
+                    updateCheckbox();
+                }
+                return false;
+            }
+
+
+        });
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    deleteButton.setVisibility(View.VISIBLE);
+                }
+                else {
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
     }
+
+
     public void arrayListChecker(){
         int size = detailContent.size();
         for(int i=0; i<size; i++){

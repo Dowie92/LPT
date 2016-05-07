@@ -71,6 +71,8 @@ public class AddDetails extends AppCompatActivity {
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
     private static int checkListsize = 0;
+    private ArrayList<EditText> allEditText = new ArrayList<EditText>();
+    private ArrayList<String> editTextValues = new ArrayList<String >();
 
     //for the expandable list view and not needed at the moment
     /*private static ExpandableListAdapter expandableListAdapter;
@@ -114,9 +116,6 @@ public class AddDetails extends AppCompatActivity {
         startDate = dateFormat.format(c.getTime());
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         time = timeFormat.format(c.getTime());
-
-        Log.d("start Date", startDate);
-
 
 
         firstCheckbox = (CheckBox)findViewById(R.id.firstCheckbox);
@@ -215,8 +214,18 @@ public class AddDetails extends AppCompatActivity {
         listChild.put(listHeader.get(0), CheckList);//adding to the view
 
     }*/
+    public void editTextValuesToArray(){
+        int size = allEditText.size();
+        String edVal = null;
+        for (int i = 0; i<size; i++){
+            editTextValues.add(String.valueOf(allEditText.get(i).getText()));
+        }
+
+    }
+
 
     public void updateCheckbox(){
+
         final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
         final LinearLayout linearLayout = new LinearLayout(AddDetails.this);
         linearLayout.setId(checkListsize);
@@ -235,6 +244,9 @@ public class AddDetails extends AppCompatActivity {
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         editText.setGravity(Gravity.BOTTOM);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        allEditText.add(editText);
+
+
 
         final Button deleteButton = new Button(AddDetails.this);
         deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
@@ -247,8 +259,6 @@ public class AddDetails extends AppCompatActivity {
                 linearLayout.setVisibility(View.GONE);
             }
         });
-
-
 
         linearLayout.addView(checkBox);
         linearLayout.addView(editText);
@@ -272,6 +282,7 @@ public class AddDetails extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
                     Log.d("checkbox userInput",userInput);
+                    //allEditTextValues.add(String.valueOf(editText.getText()));
                     // need to do something with the String inputs (to save)... add to an array
                     checkListsize = checkListsize +1;
                     updateCheckbox();
@@ -542,12 +553,21 @@ public class AddDetails extends AppCompatActivity {
     public void detailsSaveFile() throws IOException {
         getFileName();
         getDetails();
+        //loop and edit Text details will be needed to be added to the details file add...
+        editTextValuesToArray();
+        String edVal;
+        int edValSize = editTextValues.size();
+        for (int i = 0; i<edValSize; i++){
+            edVal = editTextValues.get(i);
+            Log.d("editTextVal", edVal);
+        }
+
         String saveFileName = getFileName()+"D1Q0jyf6fJ";
         Log.d("detailsSaveFN", saveFileName);
         detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
         FileWriter writer = new FileWriter(detailsFile, true);
         int size = details.size(); // calling an array....
-        Log.d("addDSavearraysize", String.valueOf(size));
+
 
         //Log.d("Save file arraySize", String.valueOf(size));
         for (int i = 0; i < size; i++) { // adding the array to the file
