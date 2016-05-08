@@ -216,8 +216,8 @@ public class AddDetails extends AppCompatActivity {
     }*/
     public void editTextValuesToArray(){
         int size = allEditText.size();
-        String edVal = null;
-        for (int i = 0; i<size; i++){
+        editTextValues.add(String.valueOf(checkBoxUserInput.getText())); // adds the first edit text value to the array
+        for (int i = 0; i<size; i++){ //loops through the dynamically created arrays to add their values to the array
             editTextValues.add(String.valueOf(allEditText.get(i).getText()));
         }
 
@@ -271,7 +271,7 @@ public class AddDetails extends AppCompatActivity {
                     editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
                 }
                 else{
-                    checkBoxUserInput.setPaintFlags(0);
+                    editText.setPaintFlags(0);
                 }
             }
         });
@@ -554,27 +554,25 @@ public class AddDetails extends AppCompatActivity {
         getFileName();
         getDetails();
         //loop and edit Text details will be needed to be added to the details file add...
-        editTextValuesToArray();
+        editTextValuesToArray(); //calls the method to add all of the string values to the savefile array
         String edVal;
-        int edValSize = editTextValues.size();
-        for (int i = 0; i<edValSize; i++){
-            edVal = editTextValues.get(i);
-            Log.d("editTextVal", edVal);
-        }
-
         String saveFileName = getFileName()+"D1Q0jyf6fJ";
         Log.d("detailsSaveFN", saveFileName);
         detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
         FileWriter writer = new FileWriter(detailsFile, true);
         int size = details.size(); // calling an array....
-
-
-        //Log.d("Save file arraySize", String.valueOf(size));
-        for (int i = 0; i < size; i++) { // adding the array to the file
+        for (int i = 0; i < size; i++) { // adding the main details to the array
             String str = details.get(i);
             Log.d("saveFile Output", str);
             writer.write(str + "\n");
         }
+        int edValSize = editTextValues.size();
+        for (int i = 0; i<edValSize; i++){ // adding the checklist details to the array
+            edVal = editTextValues.get(i);
+            Log.d("editTextVal", edVal);
+            writer.write(edVal + "\n");
+        }
+
         writer.close();
 
     }

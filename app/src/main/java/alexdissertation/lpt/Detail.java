@@ -99,7 +99,7 @@ public class Detail extends AppCompatActivity {
     } //onCreate method end
 
 
-    public void updateCheckbox(){
+    public void updateCheckbox(){ // adds a new Linear Layout containin the Checkbox and edit text
         final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
         final LinearLayout linearLayout = new LinearLayout(Detail.this);
         linearLayout.setId(checkListsize);
@@ -178,6 +178,83 @@ public class Detail extends AppCompatActivity {
         });
 
     }
+    public void updateCheckbox(String loadFileInput){ // adds a new Linear Layout containin the Checkbox and edit text
+        final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
+        final LinearLayout linearLayout = new LinearLayout(Detail.this);
+        linearLayout.setId(checkListsize);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (firstLinearLayout != null) {
+            firstLinearLayout.addView(linearLayout);
+        }
+
+        CheckBox checkBox = new CheckBox(Detail.this);
+        checkBox.setGravity(Gravity.BOTTOM);
+
+        final EditText editText = new EditText(Detail.this);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        editText.setGravity(Gravity.BOTTOM);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        editText.setText(loadFileInput);
+
+        final Button deleteButton = new Button(Detail.this);
+        deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
+        deleteButton.getBackground().setAlpha(0);
+        deleteButton.setVisibility(View.GONE);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.setVisibility(View.GONE);
+            }
+        });
+
+        linearLayout.addView(checkBox);
+        linearLayout.addView(editText);
+        linearLayout.addView(deleteButton);
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                }
+                else{
+                    editText.setPaintFlags(0);
+                }
+            }
+        });
+
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
+                    Log.d("checkbox userInput",userInput);
+                    // need to do something with the String inputs (to save)... add to an array
+                    checkListsize = checkListsize +1;
+                    updateCheckbox();
+                }
+                return false;
+            }
+
+
+        });
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    deleteButton.setVisibility(View.VISIBLE);
+                }
+                else {
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
 
 
     public void arrayListChecker(){
@@ -196,7 +273,7 @@ public class Detail extends AppCompatActivity {
         /*if (titleTextView != null) {
             titleTextView.setText(detailContent.get(0));
         }*/
-        if (1 <= i) {
+        if (1 <= i) { // gets the first value and adds it to its position
             titleTextView.setText(detailContent.get(0));
         }
         startDateTextView = (TextView)findViewById(R.id.startDate);
@@ -224,11 +301,29 @@ public class Detail extends AppCompatActivity {
         /*if (detailsEditText != null){
             detailsEditText.setText(detailContent.get(4));
         }*/
-        if (5 == i){
+        if (5 == i){ // adds the text that goes into the notes section
             if (detailContent.get(4)!= null){
                 detailsEditText.setText(detailContent.get(4));
             }
         }
+
+        if (6 <= i) { // 6 to check for the first edit text which can be set...
+            checkBoxUserInput = (EditText)findViewById(R.id.firstCheckboxEditText);
+            if (detailContent.get(5)!= null) {
+                checkBoxUserInput.setText(detailContent.get(5));
+            }
+
+        }
+        if (7 <= i) { // checks for there being more to create the edit Texts Needed
+            for (int editTextI = 7; editTextI < i; editTextI++) { // iterates through the values to create the checkboxes and Edit texts
+                if (detailContent.get(editTextI-1)!=null){ // check that the value exists in the arrayList...Might not be needed...
+                    updateCheckbox(String.valueOf(detailContent.get(editTextI-1)));
+                }
+                // need to feed in the value needed to be added to the edit Text
+                // updateCheckbox();
+            }
+        }
+
     }
     public String getFileName(){
         LayerTitles fileName = new LayerTitles();
