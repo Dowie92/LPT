@@ -202,47 +202,6 @@
                     android:inputType="text"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/metricsLinear">
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/textAndButton">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/metricsTitle"
-                        android:text="Metrics:"
-                        android:textSize="15sp"
-                        android:textAlignment="textStart"
-                        android:layout_gravity="start"
-                        android:textStyle="bold"
-                        android:padding="10dp"
-                        android:layout_weight="1"
-                        />
-
-
-                    <Button
-                        style="?android:attr/borderlessButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:id="@+id/metricsAdd"
-                        android:drawableLeft="@drawable/ic_add_black_18dp"
-                        android:drawableStart="@drawable/ic_add_black_18dp"
-                        />
-
-                </LinearLayout>
-
-
-            </LinearLayout>
-
 
             <!--<ExpandableListView
                     android:layout_width="fill_parent"
@@ -253,6 +212,47 @@
                     android:dividerHeight="1dp"
                     android:minHeight="100dp" />
                     -->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/metricsLinear">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textAndButton">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/metricsTitle"
+                    android:text="Metrics:"
+                    android:textSize="15sp"
+                    android:textAlignment="textStart"
+                    android:layout_gravity="start"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:layout_weight="1"
+                    />
+
+
+                <Button
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:id="@+id/metricsAdd"
+                    android:drawableLeft="@drawable/ic_add_black_18dp"
+                    android:drawableStart="@drawable/ic_add_black_18dp"
+                    />
+
+            </LinearLayout>
+
 
         </LinearLayout>
     </LinearLayout>

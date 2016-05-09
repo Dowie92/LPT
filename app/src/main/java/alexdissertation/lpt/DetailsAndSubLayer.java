@@ -300,16 +300,24 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     String getPath = getFileName();
                     Log.d("getPath", getPath);
                     String title = subTaskTitle.get(i);
+                    String metricDeleteFile = null;
                     if (title.contains("D1Q0jyf6fJ")){
                         title = getPath+"detailsD1Q0jyf6fJ";
+                        metricDeleteFile = getPath+"detailsMetricsD1Q0jyf6fJ";
+                        deleteFile(metricDeleteFile);
                     }
                     else {
                         title = getPath + title + layer + i;
                         Log.d("DeleteTitle", title);
 
                     }
+                    //needs a check for deleting the metrics file too...
+
                     Log.d("DeleteTitle", title);
                     cascadeFileDelete(title);//runs the filechecker with the title for the files that it wants to delete
+
+                    ; // need a check to ensure that this exists...
+
                     fileChecker();
                     subTaskTitle.remove(i); // Remove the listview item
                     arrayAdapter.notifyDataSetChanged();//updates the listview

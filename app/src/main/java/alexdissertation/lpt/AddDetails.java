@@ -59,7 +59,6 @@ import java.util.Locale;
 public class AddDetails extends AppCompatActivity {
     private String title;
     private String startDate;
-    //private String endDate; probs not needed
     private String time;
     private String detailsText;
 
@@ -77,10 +76,11 @@ public class AddDetails extends AppCompatActivity {
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
     private static int checkListsize = 0;
-    private ArrayList<EditText> allEditText = new ArrayList<EditText>();
-    private ArrayList<String> editTextValues = new ArrayList<String >();
+    private static ArrayList<EditText> allEditText = new ArrayList<EditText>();
+    private static ArrayList<String> editTextValues = new ArrayList<String >();
 
-
+    private static ArrayList<EditText>metricEditTexts = new ArrayList<EditText>();
+    private static ArrayList<String>metricEditTextValues = new ArrayList<String>();
 
     //for the expandable list view and not needed at the moment
     /*private static ExpandableListAdapter expandableListAdapter;
@@ -107,6 +107,10 @@ public class AddDetails extends AppCompatActivity {
         startCalendarbuilder.setMessage("Select a Start Date");
         startCalendarbuilder.setView(calendarView);
 
+        allEditText.clear();
+        editTextValues.clear();
+        metricEditTexts.clear();
+        metricEditTextValues.clear();
 
         //get the expandableListView
         //expandableListView = (ExpandableListView)findViewById(R.id.ChecklistexpandableListView);
@@ -252,6 +256,23 @@ public class AddDetails extends AppCompatActivity {
 
         //prepare intent which is triggered when the notification is selected
     }*/
+    public void metricEditTextToArray(){
+        int size = metricEditTexts.size();
+
+        Log.d("metricEditT size",String.valueOf(size));
+        metricEditTextValues = new ArrayList<String>();
+        for (int i = 0; i<size; i++){ // loops through the amount of sets of metrics added
+            metricEditTextValues.add(String.valueOf(metricEditTexts.get(i).getText())); //loops through to get the values and add them to a string array
+        }
+
+        int size2 = metricEditTexts.size();
+        Log.d("metricEditT size",String.valueOf(size2));
+
+        int size3 = metricEditTextValues.size();
+        Log.d("metricEditTVal size",String.valueOf(size3));
+    }
+
+
     public void editTextValuesToArray(){
         int size = allEditText.size();
         editTextValues.add(String.valueOf(checkBoxUserInput.getText())); // adds the first edit text value to the array
@@ -289,6 +310,8 @@ public class AddDetails extends AppCompatActivity {
         metricName.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricName.setInputType(InputType.TYPE_CLASS_TEXT);
 
+        metricEditTexts.add(metricName);
+
         final Button deleteButton = new Button(AddDetails.this);
         deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
         deleteButton.getBackground().setAlpha(0);
@@ -324,6 +347,8 @@ public class AddDetails extends AppCompatActivity {
         metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         metricsFirstNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsFirstNumber.setText(presetNumber);
+
+        metricEditTexts.add(metricsFirstNumber);
 
         String placeHolder = "";
         final TextView placeHolderTextV = new TextView(AddDetails.this);
@@ -362,6 +387,8 @@ public class AddDetails extends AppCompatActivity {
         metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         metricsCompleteNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsCompleteNumber.setText(presetNumber);
+
+        metricEditTexts.add(metricsCompleteNumber);
 
         // need an onclick done for this to perform the stat analysis to get the % done....
         //will need checks to make sure that it is correct... no lower than 1st val numbers... no too large numbers
@@ -471,10 +498,16 @@ public class AddDetails extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                linearLayout1.setVisibility(View.GONE);
-                linearLayout2.setVisibility(View.GONE);
-                linearLayout3.setVisibility(View.GONE);
-                linearLayout4.setVisibility(View.GONE);
+
+               //Removes the relevant items from the Metric EditText array list
+               metricEditTexts.remove(metricName);
+               metricEditTexts.remove(metricsFirstNumber);
+               metricEditTexts.remove(metricsCompleteNumber);
+
+               linearLayout1.setVisibility(View.GONE);
+               linearLayout2.setVisibility(View.GONE);
+               linearLayout3.setVisibility(View.GONE);
+               linearLayout4.setVisibility(View.GONE);
 
             }
         });
@@ -510,7 +543,9 @@ public class AddDetails extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                allEditText.remove(editText);
                 linearLayout.setVisibility(View.GONE);
+
             }
         });
 
@@ -728,6 +763,11 @@ public class AddDetails extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                try {
+                    detailsMetricSaveFile();
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }
                 finish();
                 //intent for an activity incase the flow needs to go to the newly created details...
                 //Intent intent = new Intent(getApplicationContext(), Details.class);
@@ -810,6 +850,10 @@ public class AddDetails extends AppCompatActivity {
         //loop and edit Text details will be needed to be added to the details file add...
         editTextValuesToArray(); //calls the method to add all of the string values to the savefile array
         String edVal;
+        String metricEdVals;
+
+        metricEditTextToArray();
+
         String saveFileName = getFileName()+"D1Q0jyf6fJ";
         Log.d("detailsSaveFN", saveFileName);
         detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
@@ -826,11 +870,24 @@ public class AddDetails extends AppCompatActivity {
             Log.d("editTextVal", edVal);
             writer.write(edVal + "\n");
         }
-
-        // need a loop for the metrics section in the loop it will get all of the values for each section
-
         writer.close();
 
     }
 
+    public void detailsMetricSaveFile() throws IOException {
+        getFileName();
+        String metricEdVals;
+        metricEditTextToArray();
+        String saveFileName = getFileName() + "Metrics" + "D1Q0jyf6fJ";
+        Log.d("detailsSaveFN", saveFileName);
+        detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
+        FileWriter writer = new FileWriter(detailsFile, true);
+        int metricEdValSize = metricEditTextValues.size();
+        for (int i = 0; i < metricEdValSize; i++) { // loop for metrics values... probably need a check on Name being null...
+            metricEdVals = metricEditTextValues.get(i);
+            Log.d("metricEdVals", metricEdVals);
+            writer.write(metricEdVals + "\n");
+        }
+        writer.close();
+    }
 }
