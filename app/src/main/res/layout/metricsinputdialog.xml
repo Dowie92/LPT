@@ -12,16 +12,91 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/nameText"
             android:gravity="bottom"
             android:paddingLeft="3dp"
             android:paddingRight="3dp"
-            android:text="Metric Name"/>
+            android:layout_weight="10"
+            android:text="@string/Metric_name"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/nameEditText"
+            android:gravity="bottom"
+            android:layout_weight="90"
+            android:hint="word Count"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/padder"
+            android:text="bladybla"
+            android:visibility="invisible"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/metricAmount"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/amountText"
+            android:gravity="bottom"
+            android:paddingLeft="34dp"
+            android:paddingRight="3dp"
+            android:layout_weight="10"
+            android:text="@string/metric_amount"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/amountEditText"
+            android:gravity="center_horizontal"
+            android:layout_weight="90"
+            android:text="0"
+            android:inputType="number"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/padder2"
+            android:text="bladyblatakingup"
+            android:visibility="invisible"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/metricComplete"
+        android:orientation="horizontal">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/completeText"
+            android:gravity="bottom"
+            android:paddingLeft="37dp"
+            android:paddingRight="3dp"
+            android:layout_weight="10"
+            android:text="@string/metric_Complete"/>
 
-
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/completeEditText"
+            android:gravity="center_horizontal"
+            android:layout_weight="90"
+            android:text="0"
+            android:inputType="number"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/padder3"
+            android:text="bladyblatakingup"
+            android:visibility="invisible"/>
+    </LinearLayout>
 </LinearLayout>

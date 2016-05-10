@@ -56,6 +56,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     public int homeTitleLayer;
     private static int subTLay = 2;
     private String subTTitle;
+     private String bundleHomeTitle;
     static final int addDetailback = 1;
 
     private static boolean addBackUsed;
@@ -149,9 +150,15 @@ public class DetailsAndSubLayer extends AppCompatActivity {
 
                             if (!contains){
                                 // code to add the details...
+
                                 Intent intent = new Intent(DetailsAndSubLayer.this, AddDetails.class);
                                 intent.putExtra("subTitle", subTTitle);// add in the title details for title....
                                 String detailsTitle = new bundle().getBundleSubTTitle();
+
+                                if (detailsTitle == null){
+                                    detailsTitle = new bundle().getBundleHomeTitle();
+                                }
+
                                 detailsTitle = detailsTitle+"details"+"D1Q0jyf6fJ";
                                 //String detailsTitleSubString  = detailsTitle.replace("detailsD1Q0jyf6fJ"," Details");
                                 subTaskTitle.add(detailsTitle);
@@ -439,11 +446,16 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             if(extras!=null){
                 bundleSubTitle = extras.getString("subTTitle");
                 homeTitleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
+                bundleHomeTitle = extras.getString("HomeTitle");
             }
         }
         public String getBundleSubTTitle(){
             getBundle();
             return bundleSubTitle;
+        }
+        public String getBundleHomeTitle(){
+            getBundle();
+            return bundleHomeTitle;
         }
         public int bundleSubTLay(){
             getBundle();

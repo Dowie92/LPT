@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutCompat;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
@@ -216,7 +217,8 @@ public class AddDetails extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     // add in a new metric...
-                    addMetric();
+                    addMetricAlertDialog();
+
                 }
             });
         }
@@ -271,8 +273,45 @@ public class AddDetails extends AppCompatActivity {
         }
 
     }
+    public void addMetricAlertDialog(){
+        LayoutInflater layoutInflater = LayoutInflater.from(AddDetails.this);
+        View addDetailView = layoutInflater.inflate(R.layout.metricsinputdialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+        builder.setView(addDetailView);
+        final EditText metricNameEditText = (EditText)addDetailView.findViewById(R.id.nameEditText);
+        final EditText metricAmountEditText = (EditText)addDetailView.findViewById(R.id.amountEditText);
+        final EditText metricCompleteEditText = (EditText)addDetailView.findViewById(R.id.completeEditText);
+        builder.setTitle("Add Metric");
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //closes the alert Dialog
+                String metricNameVal = null;
+                String metricAmountVal = null;
+                String metricCompleteVal = null;
 
-    public void addMetric(){
+                if (metricNameEditText != null) {
+                    metricNameVal = metricNameEditText.getText().toString();
+                    Log.d("metricNameVal", metricNameVal);
+                }
+                if (metricAmountEditText != null) {
+                    metricAmountVal = metricAmountEditText.getText().toString();
+                }
+                if (metricCompleteEditText != null) {
+                    metricCompleteVal = metricCompleteEditText.getText().toString();
+                }
+                addMetric(metricNameVal, metricAmountVal, metricCompleteVal);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialogue, int id) {
+                //cancels the add
+            }
+        });
+        builder.show();
+    }
+
+    public void addMetric(String nameVal, String amountVal, String completeVal ){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
         String presetNumber = "0";
         final LinearLayout overLinearLayout = new  LinearLayout(AddDetails.this);
@@ -310,6 +349,7 @@ public class AddDetails extends AppCompatActivity {
         metricName.setHint(metricNameHint);
         metricName.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricName.setInputType(InputType.TYPE_CLASS_TEXT);
+        metricName.setText(nameVal);
 
         metricEditTexts.add(metricName);
 
@@ -347,7 +387,7 @@ public class AddDetails extends AppCompatActivity {
         metricsFirstNumber.setGravity(Gravity.BOTTOM);
         metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         metricsFirstNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        metricsFirstNumber.setText(presetNumber);
+        metricsFirstNumber.setText(amountVal);
 
         metricEditTexts.add(metricsFirstNumber);
 
@@ -387,7 +427,7 @@ public class AddDetails extends AppCompatActivity {
         metricsCompleteNumber.setGravity(Gravity.BOTTOM);
         metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         metricsCompleteNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        metricsCompleteNumber.setText(presetNumber);
+        metricsCompleteNumber.setText(completeVal);
 
         metricEditTexts.add(metricsCompleteNumber);
 

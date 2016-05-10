@@ -10,5 +10,7 @@
     <string name="title_activity_add_details">AddDetails</string>
     <string name="action_save">Save</string>
     <string name="title_activity_detail">Detail</string>
-    <String name="Metric name">MetricName</String>
+    <string name="Metric_name">Metric Name:</string>
+    <string name="metric_amount">Amount:</string>
+    <string name="metric_Complete">Complete:</string>
 </resources>

@@ -119,13 +119,14 @@ public class Home extends AppCompatActivity {
 
                //sending the layer details onto Layer 2
                 intent.putExtra("titleLayer", 1); // will need to keep to allow for layer comparison method..
+                intent.putExtra("HomeTitle", title);
                 startActivity(intent);
                 Toast.makeText(Home.this, "List item clicked at " + position, Toast.LENGTH_SHORT).show();
             }
             });
 
         loadFile();
-    }
+    }//on create method end
 
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
         menu.add(0, v.getId(), 0, "Edit");
