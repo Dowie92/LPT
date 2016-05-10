@@ -87,10 +87,12 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                     //load the details activity...
                     Intent intentDetails = new Intent(getApplicationContext(), Detail.class);
                     new bundle().getBundleSubTTitle();
-                    Log.d ("deetsOCsubTlay", String.valueOf(subTLay));// need to check this doesnt impact the layer system when using back from the previous layer
+                    String getPath = getFileName(); //gets the path name
+                    Log.d("onClickPathName", getPath);
+
                     intentDetails.putExtra("lastTitle", subTTitle);
-                    intentDetails.putExtra("lastLayer", String.valueOf(subTLay));
-                    intentDetails.putExtra("lastPos", String.valueOf(position));
+
+
 
                     startActivity(intentDetails);
 
@@ -263,17 +265,57 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             builder.setTitle("Edit Plan title");
             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialogue, int id){
+                    fileChecker(); // to check the files before the change in a log
+
+                    String editTextValue = editText.getText().toString(); // gets the new file Name
                     //User Clicked on Confirm button
-                    String editTextValue = editText.getText().toString();
-                    subTaskTitle.remove(i);
-                    subTaskTitle.add(i,editTextValue);
-                    arrayAdapter.notifyDataSetChanged();
+                    // need to get the value of the item that the change is wanted...
+                    String layer = LayerTitles.getLayer();
+                    if (LayerTitles.getLayer() == null){
+                        layer = String.valueOf(subTLay);
+                        Log.d("DTSL-deleteListLayer", layer);
+                    }
+                    String getPath = getFileName();
+                    Log.d("getPath", getPath);
+                    String title = subTaskTitle.get(i);
+                    Log.d("title", title);
+                    if(title.contains("D1Q0jyf6fJ")){
+                        // old values
+                        String detailOldFileName = getPath+"detailsD1Q0jyf6fJ";
+                        String detailToReplacelString = title+layer+i; // gets the title as it is in the fileName
+                        int detailToReplaceInt = detailToReplacelString.length();// gets the length of this string
+                        int detailOldFileNameLenth = detailOldFileName.length();
+                        String removedTitle = detailOldFileName.substring(0,detailOldFileNameLenth-detailToReplaceInt);
+                        String newDetailFileName = removedTitle+editTextValue+layer+i+"detailsD1Q0jyf6fJ"; // adds the new details to the end
+                        cascadeFileRename(detailOldFileName,newDetailFileName);
+                        subTaskTitle.remove(i);
+                        subTaskTitle.add(i,editTextValue+layer+i+"detailsD1Q0jyf6fJ");
+                        arrayAdapter.notifyDataSetChanged();
+
+                        String metricOldFileName = getPath+"detailsMetricsD1Q0jyf6fJ";
+                        String metricToReplacelString = title+layer+i; // gets the title as it is in the fileName
+                        int metricToReplaceInt = metricToReplacelString.length();// gets the length of this string
+                        int metricOldFileNameLenth = metricOldFileName.length();
+                        String metricRemovedTitle = metricOldFileName.substring(0,metricOldFileNameLenth-metricToReplaceInt);
+                        String newDetailMetricFileName = metricRemovedTitle+editTextValue+layer+i+"detailsMetricsD1Q0jyf6fJ"; // adds the new details to the end
+                        cascadeFileRename(metricOldFileName,newDetailMetricFileName);
+
+                    }
+                    else{
+                        title = getPath + title + layer + i;
+                        String newName = getPath+editTextValue+layer+i;
+                        cascadeFileRename(title, newName);
+                        subTaskTitle.remove(i);
+                        subTaskTitle.add(i,editTextValue);
+                        arrayAdapter.notifyDataSetChanged();
+                    }
+
                     try {
                         saveSubTitleFile();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    // needs a file delete and lower file delete method to get rid of the files below what is being deleted
+                    fileChecker();
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
@@ -327,8 +369,6 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                         int lastPos = subTaskTitle.indexOf(newPositionName);
                         oldPositionName = newPositionName+layer+(lastPos+1);
                         newPositionName = newPositionName+layer+lastPos;
-                        Log.d("oldPositionName", oldPositionName);
-                        Log.d("newPoitionName", newPositionName);
 
                         cascadeFileRename(oldPositionName,newPositionName);
 
@@ -354,6 +394,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         return  true;
 
     }
+
     public class subTaskLayoutAdapter extends ArrayAdapter<String>{
         private int layout;
         public subTaskLayoutAdapter(Context context, int resource, List<String> objects){
@@ -374,15 +415,9 @@ public class DetailsAndSubLayer extends AppCompatActivity {
             mainViewHolder = (subTaskLayoutRef) convertView.getTag();
             String listTitle = getItem(position);
             if (listTitle.contains("detailsD1Q0jyf6fJ")){
-                listTitle= listTitle.replace("detailsD1Q0jyf6fJ"," Details");
+                listTitle= listTitle.replace("detailsD1Q0jyf6fJ"," Details"); //changes the list title to be a cleaner version of the title
             }
             mainViewHolder.subTitle.setText(listTitle);
-            //mainViewHolder.subTitle.setText(getItem(position)); (Not needed)
-            //toolbar implementation need changing to allow for proper use...
-            /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                toolbar.setTitle(getFileName());
-            }*/
 
             return convertView;
             }
@@ -441,10 +476,10 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         }
 
     }
-    public void cascadeFileRename(String oldpositionName, String newPositionName){// for renaming the subtasks that are moved up - with the new ArrayPosition
+    public void cascadeFileRename(String oldName, String newName){// for renaming the subtasks that are moved up - with the new ArrayPosition
         String path = String.valueOf(this.getFilesDir());
-        final String fileContains= oldpositionName;
-        final String newFileContains = newPositionName;
+        final String fileContains= oldName;
+        final String newFileContains = newName;
         String newFileName;
         File newFile;
         final File file = new File(path); // directory

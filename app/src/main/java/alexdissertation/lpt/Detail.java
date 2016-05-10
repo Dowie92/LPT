@@ -1,10 +1,15 @@
 package alexdissertation.lpt;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Notification;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.annotation.BoolRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -12,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -20,9 +26,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -31,7 +39,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.StreamHandler;
 
 public class Detail extends AppCompatActivity {
@@ -48,6 +60,16 @@ public class Detail extends AppCompatActivity {
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
     private static int checkListsize = 0;
+    private boolean loadDetailsFileCorrect;
+    private boolean loadMetricsFileCorrect;
+
+    // for the date selectors
+    private static String buttonUsed;
+    private static String dateSelected;
+
+    public static void setDateSelected(String t){
+        Detail.dateSelected = t;
+    }
 
 
     @Override
@@ -59,12 +81,18 @@ public class Detail extends AppCompatActivity {
 
         detailContent.clear();
         int i = detailContent.size();
+        metricContent.clear();
+        int m = metricContent.size();
 
-        Log.d("detailContentSize",String.valueOf(i));
-        Log.d("^^ Detail Contsize","Should be 0 here ^^");
+        String prevTitle = new detailsBundle().bundlePrevLayerTitle();
+        Log.d("prevTitle", prevTitle);
+        String fileName = getFileName();
+        Log.d("getFileName", fileName);
+
 
         loadDetailsFile();
         loadDetailMetricsFile();
+
         arrayListChecker();
         populateDetails();
         populateMetrics();
@@ -97,6 +125,41 @@ public class Detail extends AppCompatActivity {
             }
         });
 
+        Button setTime = (Button)findViewById(R.id.timeButton);
+        if (setTime != null) {
+            setTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showTimePickerDialog(v);
+
+                }
+            });
+        }
+        titleTextView = (TextView)findViewById(R.id.Title);
+        startDateTextView = (TextView)findViewById(R.id.startDate);
+        endDateTextView = (TextView)findViewById(R.id.endDate);
+        timeTextView = (TextView)findViewById(R.id.timeText);
+        detailsEditText = (EditText)findViewById(R.id.detailsEditText);
+
+        Button setStartDate = (Button)findViewById(R.id.startDateButton);
+        if (setStartDate != null){
+            setStartDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePickerDialog(v);
+                }
+            });
+        }
+        Button setEndDate = (Button)findViewById(R.id.endDateButton);
+        if (setEndDate != null){
+            setEndDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePickerDialog(v);
+                }
+            });
+        }
+
         final Button metricsButton = (Button)findViewById(R.id.metricsAdd);
         if (metricsButton != null) {
             metricsButton.setOnClickListener(new View.OnClickListener(){
@@ -119,17 +182,279 @@ public class Detail extends AppCompatActivity {
         });*/
     } //onCreate method end
 
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    public void showDatePickerDialog(View v) {
+        Log.d("View", String.valueOf(v));
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+        if (String.valueOf(v) != null){ // chceck on which button was used in selection
+            if (String.valueOf(v).contains("startDateButton")){
+                buttonUsed = "startDateButton";
+            }
+            if (String.valueOf(v).contains("endDateButton")){
+                buttonUsed = "endDateButton";
+            }
+        }
+        Log.d("buttonUsed",buttonUsed);
+    }
+
+    public void showDatePickerDialog() { // might not be needed??
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    // sets up the time selector to be called when the button is pressed
+    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState){
+            //use current time as default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            //create new instance of timePicker dialog
+            return new TimePickerDialog(getActivity(),this,hour,minute, DateFormat.is24HourFormat(getActivity()));
+        }
+        public void onTimeSet (TimePicker view, int hourOfDay, int minute){
+            //do something with the time chosen by the user
+            timeTextView.setText(String.format("%02d:%02d", hourOfDay,minute));
+        }
+    }
+
+    //Date picker setup
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+        //
+        public void onDateSet(DatePicker view, int year, int month, int day) {// sets the date selected
+            boolean dateCheck = false;
+            // Do something with the date chosen by the user
+            if (day <10){ // adds a 0 infront of the day if it is <10
+                day = Integer.parseInt("0")+day;
+            }
+            if (month<10){ //adds a 0 infront of the month is it is ,10
+                month = Integer.parseInt("0")+month;
+            }
+            StringBuilder someDate = new StringBuilder().append(day).append("/").append(month+1).append("/").append(year);
+            String aDate = String.valueOf(someDate);
+            Log.d ("anotherDate", aDate);
+            Detail.setDateSelected(aDate); //sets the value of dateSelected
+
+            Log.d("buttonusedfinal", buttonUsed);
+            if (buttonUsed != null) {
+                if (buttonUsed.equals("startDateButton")) {
+                    startDateTextView.setText(dateSelected);
+                    endDateTextView.setText(dateSelected);
+                }
+                if (buttonUsed.equals("endDateButton")) {
+                    // might need to parse it into a simpeDate format...
+                    final String startDate = String.valueOf(startDateTextView.getText());
+                    Log.d("start Date", startDate);
+                    Log.d ("aDate", aDate);
+
+                    if (startDate != null){
+                        try {
+                            dateCheck = isDateAfter(startDate, aDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d ("dateCheck", String.valueOf(dateCheck));
+                    }
+                    if (!dateCheck){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Warning:");
+                        builder.setCancelable(false);
+                        builder.setMessage("The end date that you have selected is before the start date\n\nPlease select a new end date");
+                        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogue, int id) {
+                                //Closes the Alert Dialog
+                                //need to get current date/time
+                                endDateTextView.setText(startDate);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+
+                    }
+                    else{
+                        endDateTextView.setText(dateSelected);
+                    }
+                }
+            }
+
+        }
+    }
+    public static boolean isDateAfter(String startDate,String endDate) throws ParseException {
+        String sDF = "dd/MM/yyyy"; //
+        SimpleDateFormat df = new SimpleDateFormat(sDF);
+        Date date1 = df.parse(endDate);
+        Date startingDate = df.parse(startDate);
+        Log.d ("date 1", String.valueOf(date1));
+        Log.d ("date 2", String.valueOf(startingDate));
+
+        if (date1.after(startingDate)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public class detailsBundle{
+        private String bundlePrevLayerTitle;
+        public void getBundle(){
+            //prevLayerTitle = null;
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                bundlePrevLayerTitle = extras.getString("lastTitle");
+                Log.d("detailsTitlebundle", bundlePrevLayerTitle);
+            }
+        }
+        public String bundlePrevLayerTitle(){
+            getBundle();
+            bundlePrevLayerTitle = bundlePrevLayerTitle.replace("D1Q0jyf6fJ","");
+            return bundlePrevLayerTitle;
+        }
+
+    }
+    public void percentageCheck(String percentageString){
+        double percentageDouble = Double.parseDouble(percentageString);
+        double twentyFive = 25;
+        double fifty = 50;
+        double seventyFive = 75;
+        double hundred = 100;
+        String standardMessage =  "Congratulations you have completed ";
+        String messageEqual25 =  standardMessage+twentyFive+"% of your metric at "+percentageDouble+"% complete so far.\n\nYou are a quarter of the way there!";
+        String messageOver25 =  standardMessage+"over "+twentyFive+" of your metric at "+percentageDouble+"% complete so far.\n\nKeep it up!";
+        String messageEqual50 =  standardMessage+fifty+"% of your metric at "+percentageDouble+"% complete so far.\n\nYou are half way there!";
+        String messageOver50 =  standardMessage+"over "+fifty+"% of your metric at "+percentageDouble+"% complete so far.\n\nKeep it up!";
+        String messageEqual75 =  standardMessage+seventyFive+"% of your metric at "+percentageDouble+"% complete so far.\n\nYou are three quarters the way there. Keep it up";
+        String messageOver75 =  standardMessage+"over "+seventyFive+" of your metric at "+percentageDouble+"% complete so far.\n\nAlmost Complete";
+        String messageEqual100 =  standardMessage+percentageDouble+"% of your metric!\n\nIts Done! Now onto the next one!";
+        String messageOver100 =  standardMessage+"more than your metric needed!! With "+percentageDouble+"% done!";
+        if (percentageDouble == twentyFive){ // for the 25% complete
+            congratsAlertBuilder(messageEqual25);
+        }
+        else if (percentageDouble >twentyFive && percentageDouble< fifty){  // for between 25 and 50
+            congratsAlertBuilder(messageOver25);
+        }
+        if (percentageDouble == fifty ){   //for 50%
+            congratsAlertBuilder(messageEqual50);
+        }
+        if (percentageDouble > fifty && percentageDouble < seventyFive){   // for between 50 and 75
+            congratsAlertBuilder(messageOver50);
+        }
+        if (percentageDouble == seventyFive){
+            congratsAlertBuilder(messageEqual75);
+        }
+        if (percentageDouble > seventyFive && percentageDouble < hundred){
+            congratsAlertBuilder(messageOver75);
+        }
+        if (percentageDouble == hundred){
+            congratsAlertBuilder(messageEqual100);
+        }
+        if (percentageDouble > hundred){
+            num2AboveNum1(messageOver100);
+
+        }
+
+    }
+    public void overHundred(String messageOver100){
+        congratsAlertBuilder(messageOver100);
+    }
+    public String percentageCalculation(double firstNumber, double secondNumber){
+        double percentageBool = (secondNumber/firstNumber)*100;
+        String percentageFormat = String.format("%.2f", percentageBool);
+        return percentageFormat;
+    }
+    public void congratsAlertBuilder(String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
+        builder.setTitle("Congrats");
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton("Great!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //closes the alert Dialog
+            }
+        });
+        builder.show();
+    }
+    public void num2AboveNum1(final String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
+        builder.setTitle("Number Larger");
+        builder.setMessage("The number you have given for Complete is larger than the value Needed.");
+        builder.setPositiveButton("Confirm & Keep Value", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //does nothing
+                overHundred(message);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //does nothing... alerts user to enter another number... want to edit the text val to remove a number
+                Toast.makeText(Detail.this, "Please enter another number!", Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.show();
+
+    }
+    public void missingValAlertDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
+        builder.setTitle("Number missing");
+        builder.setMessage("One or both of the metric numbers are missing\n\nPlease enter a value(s)");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //closes the alert Dialog
+            }
+        });
+        builder.show();
+
+    }
+
     public void addMetric(){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
         String presetNumber = "0";
+
+        final LinearLayout overLinearLayout = new  LinearLayout(Detail.this);
+        overLinearLayout.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
+        overLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        overLinearLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.metricsborder));
+        overLinearLayout.setPadding(0,0,0,50);
+        overLinearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            metricLayout.addView(overLinearLayout);
+        }
+
+
         final LinearLayout linearLayout1 = new LinearLayout(Detail.this); // Creates the new LL - for title
         linearLayout1.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
         linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout1.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout1);
+            overLinearLayout.addView(linearLayout1);
         }
 
         String nameTextText = "Metric Name";
@@ -165,7 +490,7 @@ public class Detail extends AppCompatActivity {
         linearLayout2.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout2);
+            overLinearLayout.addView(linearLayout2);
         }
 
         String amountTextViewText = "Amount";
@@ -202,7 +527,7 @@ public class Detail extends AppCompatActivity {
         linearLayout3.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout3);
+            overLinearLayout.addView(linearLayout3);
         }
 
         String completeTextText = "Complete";
@@ -241,7 +566,7 @@ public class Detail extends AppCompatActivity {
         linearLayout4.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout4);
+            overLinearLayout.addView(linearLayout4);
         }
 
 
@@ -251,8 +576,53 @@ public class Detail extends AppCompatActivity {
         finalStatText.setPadding(30,80,50,100);
         finalStatText.setVisibility(View.GONE);
 
-
         linearLayout4.addView(finalStatText);
+        // performs the stats and checks on the second value when the user moves away
+        metricsCompleteNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {
+                        missingValAlertDialog();
+                    }
+                    else{
+                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
+
+                    }
+
+                }
+
+            }
+        });
+        // performs the checks and stat analysis on the first number value when the user moves away
+        metricsFirstNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {// alert to let the user know they have left this blank
+                        missingValAlertDialog();
+                    }
+                    else{
+                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
+
+                    }
+
+                }
+
+            }
+        });
 
         //Stat analysis... get the % complete
         //calculation on the done click when the user has input from the second number
@@ -262,72 +632,26 @@ public class Detail extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     //check the number values are not null or
                     if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {
-                        //Alert Dialog to let the user know...
-                        AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
-                        builder.setTitle("Number missing");
-                        builder.setMessage("One or both of the metric numbers are missing\n\nPlease enter a value(s)");
-                        builder.setCancelable(false);
-                        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //closes the alert Dialog
-                            }
-                        });
-                        builder.show();
-
+                        missingValAlertDialog();
                     }
                     else{
-
                         final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
-                        Log.d("number1Val", String.valueOf(number1));
-                        Log.d("number2Val", String.valueOf(number2));
-
-                        if (number2 > number1) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
-                            builder.setTitle("Number Larger");
-                            builder.setMessage("The number you have given for Complete is larger than the value Needed.\n" + "Keep Value?");
-                            builder.setPositiveButton("Keep Value", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                    double percentage = (number2 / number1) * 100;
-                                    String percentageFormat = String.format("%.2f", percentage);
-                                    Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                                    String finalStatTextText = "You have Completed " + percentageFormat + "% of your Plan/Subtask";
-                                    finalStatText.setText(finalStatTextText);
-                                    finalStatText.setVisibility(View.VISIBLE);
-                                    //closes the alert Dialog
-                                }
-                            });
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    metricsCompleteNumber.setText("");
-                                    Toast.makeText(Detail.this, "The complete number has been cleared\nPlease enter another number!", Toast.LENGTH_LONG).show();
-                                }
-                            });
-                            builder.show();
-
-                        } else {
-                            double percentage = (number2 / number1) * 100;
-                            String percentageFormat = String.format("%.2f", percentage);
-                            Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                            String finalStatTextText = "You have completed " + percentageFormat + "% of your Plan/Subtask";
-                            finalStatText.setText(finalStatTextText);
-                            finalStatText.setVisibility(View.VISIBLE);
-                        }
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
                     }
 
                 }
                 return false;
             }
         });
-
-
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                overLinearLayout.setVisibility(View.GONE);
                 linearLayout1.setVisibility(View.GONE);
                 linearLayout2.setVisibility(View.GONE);
                 linearLayout3.setVisibility(View.GONE);
@@ -336,8 +660,22 @@ public class Detail extends AppCompatActivity {
             }
         });
 
-    }public void addMetric(String name, String amount, String complete){
+    }
+
+    public void addMetric(String name, String amount, String complete){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
+
+        final LinearLayout overLinearLayout = new  LinearLayout(Detail.this);
+        overLinearLayout.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
+        overLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        overLinearLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.metricsborder));
+        overLinearLayout.setPadding(0,0,0,50);
+        overLinearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            metricLayout.addView(overLinearLayout);
+        }
+
         final LinearLayout linearLayout1 = new LinearLayout(Detail.this); // Creates the new LL - for title
         linearLayout1.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
         linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
@@ -345,7 +683,7 @@ public class Detail extends AppCompatActivity {
 
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout1);
+            overLinearLayout.addView(linearLayout1);
         }
 
         String nameTextText = "Metric Name";
@@ -382,7 +720,7 @@ public class Detail extends AppCompatActivity {
         linearLayout2.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout2);
+            overLinearLayout.addView(linearLayout2);
         }
 
         String amountTextViewText = "Amount";
@@ -419,7 +757,7 @@ public class Detail extends AppCompatActivity {
         linearLayout3.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout3);
+            overLinearLayout.addView(linearLayout3);
         }
 
         String completeTextText = "Complete";
@@ -458,7 +796,7 @@ public class Detail extends AppCompatActivity {
         linearLayout4.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout4);
+            overLinearLayout.addView(linearLayout4);
         }
 
 
@@ -467,12 +805,55 @@ public class Detail extends AppCompatActivity {
         finalStatText.setGravity(Gravity.BOTTOM);
         finalStatText.setPadding(30,80,50,100);
         finalStatText.setVisibility(View.GONE);
-
-
         linearLayout4.addView(finalStatText);
-
         //Stat analysis... get the % complete
         //calculation on the done click when the user has input from the second number
+        // performs the stats and checks on the second value when the user moves away
+        metricsCompleteNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {
+                        missingValAlertDialog();
+                    }
+                    else{
+                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
+
+                    }
+
+                }
+
+            }
+        });
+        // performs the checks and stat analysis on the first number value when the user moves away
+        metricsFirstNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {// alert to let the user know they have left this blank
+                        missingValAlertDialog();
+                    }
+                    else{
+                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
+
+                    }
+
+                }
+
+            }
+        });
         metricsCompleteNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -494,46 +875,13 @@ public class Detail extends AppCompatActivity {
 
                     }
                     else{
-
                         final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
-                        Log.d("number1Val", String.valueOf(number1));
-                        Log.d("number2Val", String.valueOf(number2));
-
-                        if (number2 > number1) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
-                            builder.setTitle("Number Larger");
-                            builder.setMessage("The number you have given for Complete is larger than the value Needed.\n" + "Keep Value?");
-                            builder.setPositiveButton("Keep Value", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                    double percentage = (number2 / number1) * 100;
-                                    String percentageFormat = String.format("%.2f", percentage);
-                                    Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                                    String finalStatTextText = "You have Completed " + percentageFormat + "% of your Plan/Subtask";
-                                    finalStatText.setText(finalStatTextText);
-                                    finalStatText.setVisibility(View.VISIBLE);
-                                    //closes the alert Dialog
-                                }
-                            });
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    metricsCompleteNumber.setText("");
-                                    Toast.makeText(Detail.this, "The complete number has been cleared\nPlease enter another number!", Toast.LENGTH_LONG).show();
-                                }
-                            });
-                            builder.show();
-
-                        } else {
-                            double percentage = (number2 / number1) * 100;
-                            String percentageFormat = String.format("%.2f", percentage);
-                            Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                            String finalStatTextText = "You have completed " + percentageFormat + "% of your Plan/Subtask";
-                            finalStatText.setText(finalStatTextText);
-                            finalStatText.setVisibility(View.VISIBLE);
-                        }
+                        String percentageString = percentageCalculation(number1, number2);
+                        percentageCheck(percentageString);
+                        String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
+                        finalStatText.setText(finalStatTextText);
+                        finalStatText.setVisibility(View.VISIBLE);
                     }
 
                 }
@@ -541,10 +889,10 @@ public class Detail extends AppCompatActivity {
             }
         });
 
-
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                overLinearLayout.setVisibility(View.GONE);
                 linearLayout1.setVisibility(View.GONE);
                 linearLayout2.setVisibility(View.GONE);
                 linearLayout3.setVisibility(View.GONE);
@@ -554,7 +902,6 @@ public class Detail extends AppCompatActivity {
         });
 
     }
-
 
     public void updateCheckbox(){ // adds a new Linear Layout containin the Checkbox and edit text
         final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
@@ -587,8 +934,6 @@ public class Detail extends AppCompatActivity {
                 linearLayout.setVisibility(View.GONE);
             }
         });
-
-
 
         linearLayout.addView(checkBox);
         linearLayout.addView(editText);
@@ -875,9 +1220,13 @@ public class Detail extends AppCompatActivity {
             catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
         else {
+
             Log.d("System Out:load", "Loadfile does not exist");
+            loadDetailsFileCorrect = false;
+            loadMetricsFileCorrect = false;
         }
 
     }

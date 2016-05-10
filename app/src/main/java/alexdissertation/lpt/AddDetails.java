@@ -153,12 +153,9 @@ public class AddDetails extends AppCompatActivity {
                 }
                 else{
                     checkBoxUserInput.setPaintFlags(0);
-                    //do nothing
                 }
             }
         });
-
-
 
         titleTextView = (TextView)findViewById(R.id.Title);
         title = new addDetailsBundle().bundlePrevLayerTitle();
@@ -258,20 +255,13 @@ public class AddDetails extends AppCompatActivity {
     }*/
     public void metricEditTextToArray(){
         int size = metricEditTexts.size();
-
-        Log.d("metricEditT size",String.valueOf(size));
         metricEditTextValues = new ArrayList<String>();
         for (int i = 0; i<size; i++){ // loops through the amount of sets of metrics added
             metricEditTextValues.add(String.valueOf(metricEditTexts.get(i).getText())); //loops through to get the values and add them to a string array
         }
 
-        int size2 = metricEditTexts.size();
-        Log.d("metricEditT size",String.valueOf(size2));
 
-        int size3 = metricEditTextValues.size();
-        Log.d("metricEditTVal size",String.valueOf(size3));
     }
-
 
     public void editTextValuesToArray(){
         int size = allEditText.size();
@@ -285,6 +275,17 @@ public class AddDetails extends AppCompatActivity {
     public void addMetric(){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
         String presetNumber = "0";
+        final LinearLayout overLinearLayout = new  LinearLayout(AddDetails.this);
+        overLinearLayout.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
+        overLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        overLinearLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.metricsborder));
+        overLinearLayout.setPadding(0,0,0,50);
+        overLinearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            metricLayout.addView(overLinearLayout);
+        }
+
         final LinearLayout linearLayout1 = new LinearLayout(AddDetails.this); // Creates the new LL - for title
         linearLayout1.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
         linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
@@ -292,7 +293,7 @@ public class AddDetails extends AppCompatActivity {
 
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout1);
+            overLinearLayout.addView(linearLayout1);
         }
 
         String nameTextText = "Metric Name";
@@ -330,7 +331,7 @@ public class AddDetails extends AppCompatActivity {
         linearLayout2.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout2);
+            overLinearLayout.addView(linearLayout2);
         }
 
         String amountTextViewText = "Amount";
@@ -370,7 +371,7 @@ public class AddDetails extends AppCompatActivity {
         linearLayout3.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout3);
+            overLinearLayout.addView(linearLayout3);
         }
 
         String completeTextText = "Complete";
@@ -411,7 +412,7 @@ public class AddDetails extends AppCompatActivity {
         linearLayout4.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         if (metricLayout != null) { // as long as ML exists add a new layout
-            metricLayout.addView(linearLayout4);
+            overLinearLayout.addView(linearLayout4);
         }
 
 
@@ -424,7 +425,74 @@ public class AddDetails extends AppCompatActivity {
 
         linearLayout4.addView(finalStatText);
 
-        //Stat analysis... get the % complete
+        metricsCompleteNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {
+                        //Alert Dialog to let the user know...
+                        AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+                        builder.setTitle("Number missing");
+                        builder.setMessage("One or both of the metric numbers are missing\n\nPlease enter a value(s)");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //closes the alert Dialog
+                            }
+                        });
+                        builder.show();
+
+                    }
+                    else{
+
+                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        Log.d("number1Val", String.valueOf(number1));
+                        Log.d("number2Val", String.valueOf(number2));
+
+                        if (number2 > number1) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+                            builder.setTitle("Number Larger");
+                            builder.setMessage("The number you have given for Complete is larger than the value Needed.\n" + "Keep Value?");
+                            builder.setPositiveButton("Keep Value", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    double percentage = (number2 / number1) * 100;
+                                    String percentageFormat = String.format("%.2f", percentage);
+                                    Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
+                                    String finalStatTextText = "You have Completed " + percentageFormat + "% of your Plan/Subtask";
+                                    finalStatText.setText(finalStatTextText);
+                                    finalStatText.setVisibility(View.VISIBLE);
+                                    //closes the alert Dialog
+                                }
+                            });
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    metricsCompleteNumber.setText("");
+                                    Toast.makeText(AddDetails.this, "The complete number has been cleared\nPlease enter another number!", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            builder.show();
+
+                        } else {
+                            double percentage = (number2 / number1) * 100;
+                            String percentageFormat = String.format("%.2f", percentage);
+                            Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
+                            String finalStatTextText = "You have completed " + percentageFormat + "% of your Plan/Subtask";
+                            finalStatText.setText(finalStatTextText);
+                            finalStatText.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                }
+
+            }
+        });
+
+        /*//Stat analysis... get the % complete
         //calculation on the done click when the user has input from the second number
         metricsCompleteNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -493,7 +561,7 @@ public class AddDetails extends AppCompatActivity {
                 return false;
             }
         });
-
+        */
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -503,11 +571,12 @@ public class AddDetails extends AppCompatActivity {
                metricEditTexts.remove(metricName);
                metricEditTexts.remove(metricsFirstNumber);
                metricEditTexts.remove(metricsCompleteNumber);
-
+               overLinearLayout.setVisibility(View.GONE);
                linearLayout1.setVisibility(View.GONE);
                linearLayout2.setVisibility(View.GONE);
                linearLayout3.setVisibility(View.GONE);
                linearLayout4.setVisibility(View.GONE);
+
 
             }
         });
@@ -615,7 +684,7 @@ public class AddDetails extends AppCompatActivity {
         Log.d("View", String.valueOf(v));
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
-        if (String.valueOf(v) != null){
+        if (String.valueOf(v) != null){ // chceck on which button was used in selection
             if (String.valueOf(v).contains("startDateButton")){
                 buttonUsed = "startDateButton";
             }
@@ -626,7 +695,7 @@ public class AddDetails extends AppCompatActivity {
         Log.d("buttonUsed",buttonUsed);
     }
 
-    public void showDatePickerDialog() {
+    public void showDatePickerDialog() { // might not be needed??
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
     }
@@ -725,14 +794,12 @@ public class AddDetails extends AppCompatActivity {
         }
     }
     public static boolean isDateAfter(String startDate,String endDate) throws ParseException {
-
             String sDF = "dd/MM/yyyy"; //
             SimpleDateFormat df = new SimpleDateFormat(sDF);
             Date date1 = df.parse(endDate);
             Date startingDate = df.parse(startDate);
             Log.d ("date 1", String.valueOf(date1));
             Log.d ("date 2", String.valueOf(startingDate));
-
 
             if (date1.after(startingDate)) {
                 return true;
@@ -844,16 +911,37 @@ public class AddDetails extends AppCompatActivity {
         Log.d("editTextDetails", editTextDetails);
         details.add(editTextDetails);
     }
+
+    public void metricsNullValCheck() {// does not appear like this is needed...
+        int metricEdValSize = metricEditTextValues.size();
+        String metricEdVals;
+        for (int i = 0; i < metricEdValSize; i++) { // loop for metrics values... probably need a check on Name being null...
+            metricEdVals = metricEditTextValues.get(i);
+            if (metricEdVals.length() == 0) break;
+            {
+                //build an alert dialog to warn the user
+                AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+                builder.setTitle("Warning:");
+                builder.setCancelable(false);
+                builder.setMessage("One of the metrics name, amount or complete does not have a value\n\nPlease enter a value for these");
+                builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogue, int id) {
+                        //Closes the Alert Dialog
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        }
+    }
+
     public void detailsSaveFile() throws IOException {
         getFileName();
         getDetails();
         //loop and edit Text details will be needed to be added to the details file add...
         editTextValuesToArray(); //calls the method to add all of the string values to the savefile array
         String edVal;
-        String metricEdVals;
-
         metricEditTextToArray();
-
         String saveFileName = getFileName()+"D1Q0jyf6fJ";
         Log.d("detailsSaveFN", saveFileName);
         detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
