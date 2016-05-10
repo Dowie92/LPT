@@ -20,10 +20,12 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +47,8 @@ public class Home extends AppCompatActivity {
     private String titlesFile = "TitlesFile";
     private File titlesSaveFile;
     private LayerTitles saveFileDetail;
+
+    private static boolean notificationsToggle;
 
 
     @Override
@@ -377,6 +381,14 @@ public class Home extends AppCompatActivity {
         return true;
     }
 
+    final CompoundButton.OnCheckedChangeListener toggleButtonChangeListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            // The user changed the button, do something
+            //String tog = notificationsButton.getTextOff().toString();
+        }
+    };
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -386,6 +398,26 @@ public class Home extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // create Alert Dialog
+            LayoutInflater layoutInflater = LayoutInflater.from(Home.this);
+            View settingsDialog = layoutInflater.inflate(R.layout.settingsdialog, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
+            builder.setView(settingsDialog);
+            final ToggleButton notificationsButton = (ToggleButton)settingsDialog.findViewById(R.id.notificationToggleButton);
+            builder.setTitle("Settings");
+            builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    notificationsButton.setOnCheckedChangeListener(toggleButtonChangeListener);
+
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialogue, int id) {
+                    //cancels the add
+                }
+            });
+            builder.show();
             return true;
         }
 

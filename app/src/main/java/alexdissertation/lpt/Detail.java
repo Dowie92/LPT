@@ -373,7 +373,6 @@ public class Detail extends AppCompatActivity {
         }
         if (percentageDouble > hundred){
             num2AboveNum1(messageOver100);
-
         }
 
     }
@@ -632,6 +631,9 @@ public class Detail extends AppCompatActivity {
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
                         percentageCheck(percentageString);
+                        if (number1 ==0 && number2 ==0){
+                            percentageString = "0";
+                        }
                         String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
                         finalStatText.setText(finalStatTextText);
                         finalStatText.setVisibility(View.VISIBLE);
@@ -655,6 +657,9 @@ public class Detail extends AppCompatActivity {
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
                         percentageCheck(percentageString);
+                        if (number1 ==0 && number2 ==0){
+                            percentageString = "0";
+                        }
                         String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
                         finalStatText.setText(finalStatTextText);
                         finalStatText.setVisibility(View.VISIBLE);
@@ -690,6 +695,9 @@ public class Detail extends AppCompatActivity {
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
                         percentageCheck(percentageString);
+                        if (number1 ==0 && number2 ==0){
+                            percentageString = "0";
+                        }
                         String finalStatTextText = "You have completed " + percentageString + "% of your Plan/Subtask";
                         finalStatText.setText(finalStatTextText);
                         finalStatText.setVisibility(View.VISIBLE);

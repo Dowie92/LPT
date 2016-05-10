@@ -261,8 +261,6 @@ public class AddDetails extends AppCompatActivity {
         for (int i = 0; i<size; i++){ // loops through the amount of sets of metrics added
             metricEditTextValues.add(String.valueOf(metricEditTexts.get(i).getText())); //loops through to get the values and add them to a string array
         }
-
-
     }
 
     public void editTextValuesToArray(){
@@ -501,7 +499,9 @@ public class AddDetails extends AppCompatActivity {
 
                                     double percentage = (number2 / number1) * 100;
                                     String percentageFormat = String.format("%.2f", percentage);
-                                    Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
+                                    if (number1 ==0 && number2 ==0){
+                                        percentageFormat = "0";
+                                    }
                                     String finalStatTextText = "You have Completed " + percentageFormat + "% of your Plan/Subtask";
                                     finalStatText.setText(finalStatTextText);
                                     finalStatText.setVisibility(View.VISIBLE);
@@ -520,7 +520,9 @@ public class AddDetails extends AppCompatActivity {
                         } else {
                             double percentage = (number2 / number1) * 100;
                             String percentageFormat = String.format("%.2f", percentage);
-                            Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
+                            if (number1 ==0 && number2 ==0){
+                                percentageFormat = "0";
+                            }
                             String finalStatTextText = "You have completed " + percentageFormat + "% of your Plan/Subtask";
                             finalStatText.setText(finalStatTextText);
                             finalStatText.setVisibility(View.VISIBLE);
@@ -532,76 +534,6 @@ public class AddDetails extends AppCompatActivity {
             }
         });
 
-        /*//Stat analysis... get the % complete
-        //calculation on the done click when the user has input from the second number
-        metricsCompleteNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    //check the number values are not null or
-                    if ((String.valueOf(metricsFirstNumber.getText())).equals("") || (String.valueOf(metricsCompleteNumber.getText())).equals("")) {
-                        //Alert Dialog to let the user know...
-                        AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
-                        builder.setTitle("Number missing");
-                        builder.setMessage("One or both of the metric numbers are missing\n\nPlease enter a value(s)");
-                        builder.setCancelable(false);
-                        builder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //closes the alert Dialog
-                            }
-                        });
-                        builder.show();
-
-                    }
-                    else{
-
-                    final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
-                    final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
-                    Log.d("number1Val", String.valueOf(number1));
-                    Log.d("number2Val", String.valueOf(number2));
-
-                    if (number2 > number1) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
-                        builder.setTitle("Number Larger");
-                        builder.setMessage("The number you have given for Complete is larger than the value Needed.\n" + "Keep Value?");
-                        builder.setPositiveButton("Keep Value", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                double percentage = (number2 / number1) * 100;
-                                String percentageFormat = String.format("%.2f", percentage);
-                                Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                                String finalStatTextText = "You have Completed " + percentageFormat + "% of your Plan/Subtask";
-                                finalStatText.setText(finalStatTextText);
-                                finalStatText.setVisibility(View.VISIBLE);
-                                //closes the alert Dialog
-                            }
-                        });
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                metricsCompleteNumber.setText("");
-                                Toast.makeText(AddDetails.this, "The complete number has been cleared\nPlease enter another number!", Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        builder.show();
-
-                    } else {
-                        double percentage = (number2 / number1) * 100;
-                        String percentageFormat = String.format("%.2f", percentage);
-                        Log.d("percentage complete", String.valueOf(percentageFormat) + "%");
-                        String finalStatTextText = "You have completed " + percentageFormat + "% of your Plan/Subtask";
-                        finalStatText.setText(finalStatTextText);
-                        finalStatText.setVisibility(View.VISIBLE);
-                    }
-                }
-
-                }
-                return false;
-            }
-        });
-        */
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
