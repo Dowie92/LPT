@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Home extends AppCompatActivity {
 
@@ -46,6 +47,8 @@ public class Home extends AppCompatActivity {
     private String editTextString;
     private String titlesFile = "TitlesFile";
     private File titlesSaveFile;
+    private String settingsFile = "SettingsFile";
+    private File settingsSaveFile;
     private LayerTitles saveFileDetail;
 
     private static boolean notificationsToggle;
@@ -131,6 +134,9 @@ public class Home extends AppCompatActivity {
 
         loadFile();
     }//on create method end
+    public boolean getNotificationSetting(){
+        return notificationsToggle;
+    }
 
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo MenuInfo){
         menu.add(0, v.getId(), 0, "Edit");
@@ -346,6 +352,14 @@ public class Home extends AppCompatActivity {
         }
         writer.close();
     }
+    public void saveSettingsFile () throws IOException {
+        deleteFile(settingsFile);
+        settingsSaveFile = new File(this.getFilesDir(), settingsFile);
+        FileWriter writer = new FileWriter(settingsSaveFile, true);
+        String str = String.valueOf(notificationsToggle);
+        writer.write(str + "\n");
+        writer.close();
+    }
     //Load file code
     public void loadFile() {
         File loadFile = getFileStreamPath(titlesFile);
@@ -373,6 +387,31 @@ public class Home extends AppCompatActivity {
         }
 
     }
+    public String loadSettingsFile() {
+        File loadSettingsFile = getFileStreamPath(settingsFile);
+        String notificationSettingVal = null;
+        if (loadSettingsFile.exists()){
+            Log.d("System Out:LoadFile", "loadfile does exist!");
+            try {
+                FileInputStream fileInputStream = new FileInputStream(loadSettingsFile);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+                String message;
+                while ((message = bufferedReader.readLine()) !=null){
+                    notificationSettingVal = message;
+                }
+
+            }catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.d("System Out:load", "Loadfile does not exist");
+        }
+        return notificationSettingVal;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -380,14 +419,6 @@ public class Home extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
-
-    final CompoundButton.OnCheckedChangeListener toggleButtonChangeListener = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            // The user changed the button, do something
-            //String tog = notificationsButton.getTextOff().toString();
-        }
-    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -404,17 +435,55 @@ public class Home extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
             builder.setView(settingsDialog);
             final ToggleButton notificationsButton = (ToggleButton)settingsDialog.findViewById(R.id.notificationToggleButton);
+            notificationsButton.setChecked(true);
+            String notificationSettings = loadSettingsFile();
+            if (notificationSettings !=null){
+            Log.d("notificationSettings",notificationSettings);
+                if (notificationSettings.equals("true")){//code to keep the correct state when re-drawn
+                    notificationsButton.setChecked(false); //just sets the text and doesnt change the actual value...
+                }
+                else{
+                    notificationsButton.setChecked(true);
+                }
+            }
+            notificationsButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    String pastButtonState = notificationsButton.getText().toString(); //gets the past state of the button
+                    String buttonState;
+                    if (pastButtonState.equals("ON")){ //updates the state of the button
+                        buttonState = "OFF";
+                    }
+                    else{
+                        buttonState = "ON";
+                    }
+
+                    Log.d("buttonState", buttonState);
+                    if (buttonState.equals("ON")){
+                        notificationsToggle = false;
+                        Log.d("notifToggle", String.valueOf(notificationsToggle));
+                    }
+                    else {
+                        notificationsToggle = true;
+                        Log.d("notifToggle", String.valueOf(notificationsToggle));
+                    }
+                }
+            });
             builder.setTitle("Settings");
             builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    notificationsButton.setOnCheckedChangeListener(toggleButtonChangeListener);
-
+                // saves to a Settings file...
+                    try {
+                        saveSettingsFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialogue, int id) {
-                    //cancels the add
+                    //cancels the dialog
                 }
             });
             builder.show();

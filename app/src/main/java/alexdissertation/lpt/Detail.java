@@ -61,6 +61,7 @@ public class Detail extends AppCompatActivity {
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
     private static int checkListsize = 0;
+    private static boolean notificationSettings;
     private boolean loadDetailsFileCorrect;
     private boolean loadMetricsFileCorrect;
 
@@ -90,7 +91,7 @@ public class Detail extends AppCompatActivity {
         String fileName = getFileName();
         Log.d("getFileName", fileName);
 
-
+        notificationSettingsCheck();
         loadDetailsFile();
         loadDetailMetricsFile();
 
@@ -335,6 +336,11 @@ public class Detail extends AppCompatActivity {
         }
 
     }
+    public boolean notificationSettingsCheck(){
+       notificationSettings = new Home().getNotificationSetting();
+        return notificationSettings;
+    }
+
     public void percentageCheck(String percentageString){
         double percentageDouble = Double.parseDouble(percentageString);
         double twentyFive = 25;
@@ -630,7 +636,10 @@ public class Detail extends AppCompatActivity {
                         final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
-                        percentageCheck(percentageString);
+                        boolean notificationSettingsCheck = notificationSettingsCheck();
+                        if (!notificationSettingsCheck){
+                            percentageCheck(percentageString);
+                        }
                         if (number1 ==0 && number2 ==0){
                             percentageString = "0";
                         }
@@ -656,7 +665,11 @@ public class Detail extends AppCompatActivity {
                         final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
-                        percentageCheck(percentageString);
+                        boolean notificationSettingsCheck = notificationSettingsCheck();
+                        if (!notificationSettingsCheck){
+                            percentageCheck(percentageString);
+                        }
+                        //percentageCheck(percentageString);
                         if (number1 ==0 && number2 ==0){
                             percentageString = "0";
                         }
@@ -694,7 +707,11 @@ public class Detail extends AppCompatActivity {
                         final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
                         final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
-                        percentageCheck(percentageString);
+                        boolean notificationSettingsCheck = notificationSettingsCheck();
+                        if (!notificationSettingsCheck){
+                            percentageCheck(percentageString);
+                        }
+                        //percentageCheck(percentageString);
                         if (number1 ==0 && number2 ==0){
                             percentageString = "0";
                         }

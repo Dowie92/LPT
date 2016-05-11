@@ -533,8 +533,6 @@ public class AddDetails extends AppCompatActivity {
 
             }
         });
-
-
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -56,7 +56,8 @@ public class DetailsAndSubLayer extends AppCompatActivity {
     public int homeTitleLayer;
     private static int subTLay = 2;
     private String subTTitle;
-     private String bundleHomeTitle;
+    private String bundleHomeTitle;
+    private boolean notificationSetting;
     static final int addDetailback = 1;
 
     private static boolean addBackUsed;
@@ -447,6 +448,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
                 bundleSubTitle = extras.getString("subTTitle");
                 homeTitleLayer = extras.getInt("titleLayer"); // gets the layer from the previous layer
                 bundleHomeTitle = extras.getString("HomeTitle");
+
             }
         }
         public String getBundleSubTTitle(){
