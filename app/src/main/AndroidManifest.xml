@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="alexdissertation.lpt">
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -31,6 +30,8 @@
             android:name=".Detail"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"/>
-    </application>
 
+
+        <receiver android:name=".AlarmReceiver"/>
+    </application>
 </manifest>

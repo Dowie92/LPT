@@ -44,14 +44,6 @@
                 android:paddingRight="20dp"
                 android:paddingLeft="20dp"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:id="@+id/titleEditButton"
-                android:padding="20dp"
-                style="?android:attr/borderlessButtonStyle"/>
-
         </LinearLayout>
 
         <LinearLayout
@@ -66,22 +58,40 @@
                 android:layout_height="wrap_content"
                 android:text="Start Date:"
                 android:id="@+id/startDateText"
-                android:padding="20dp"/>
+                android:paddingStart="20dp"
+                android:paddingLeft="20dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:layout_gravity="center"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
                 android:id="@+id/startDate"
-                android:padding="10dp"/>
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:paddingRight="5dp"
+                android:layout_gravity="center"/>
 
-            <Button
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/startDateButton"
-                android:drawableLeft="@android:drawable/ic_menu_today"
-                android:drawableStart="@android:drawable/ic_menu_today"
-                style="?android:attr/borderlessButtonStyle"/>
+                android:src="@drawable/ic_date_range_black_24dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_gravity="center"
+                android:contentDescription="date Selector" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/startDateNotificationButton"
+                android:src="@drawable/ic_alarm_add_black_24dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:contentDescription="add alarm"
+                android:layout_gravity="center"/>
 
         </LinearLayout>
 
@@ -97,21 +107,39 @@
                 android:layout_height="wrap_content"
                 android:text="End Date:"
                 android:id="@+id/EndDateText"
-                android:padding="20dp"/>
+                android:paddingStart="20dp"
+                android:paddingLeft="20dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:layout_gravity="center"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:id="@+id/endDate"/>
+                android:id="@+id/endDate"
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:paddingRight="5dp"
+                android:layout_gravity="center"/>
 
-            <Button
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/endDateButton"
-                android:drawableLeft="@android:drawable/ic_menu_today"
-                android:drawableStart="@android:drawable/ic_menu_today"
-                style="?android:attr/borderlessButtonStyle"/>
+                android:src="@drawable/ic_date_range_black_24dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_gravity="center"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/endDateNotificationButton"
+                android:src="@drawable/ic_alarm_add_black_24dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:contentDescription="add alarm"
+                android:layout_gravity="center"
+                />
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -234,7 +262,6 @@
                     android:id="@+id/metricsTitle"
                     android:text="Metrics:"
                     android:textSize="15sp"
-                    android:textAlignment="textStart"
                     android:layout_gravity="start"
                     android:textStyle="bold"
                     android:padding="10dp"
@@ -253,8 +280,33 @@
                     />
 
             </LinearLayout>
+        </LinearLayout>
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/notificationsLinear">
+            <!--android:visibility="invisible"-->
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/notificationsText">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/notificationsTitle"
+                    android:text="Notifiations:"
+                    android:textSize="15sp"
+                    android:layout_gravity="start"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:layout_weight="1"
+                    />
+                </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -2,5 +2,6 @@
 <resources>
 <item name="metricLinearLayout" type="id"/>
 <item name="checkListLinearLayout" type="id"/>
+<item name="notificationsLinearLayout" type="id"/>
 
 </resources>

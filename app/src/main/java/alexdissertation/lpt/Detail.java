@@ -1,5 +1,6 @@
 package alexdissertation.lpt;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -8,10 +9,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 //import android.app.TaskStackBuilder;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.BoolRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -37,6 +41,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -81,6 +86,11 @@ public class Detail extends AppCompatActivity {
 
     private String metricTypeSelected;
 
+    private static String notificationSelectorDate;
+    private static TextView dateTextView;
+    private static TextView timeAD;
+    private static boolean notificationTimeBool;
+
     public static void setDateSelected(String t){
         Detail.dateSelected = t;
     }
@@ -93,7 +103,7 @@ public class Detail extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        createDateNotification();
+        notificationTimeBool = false;
 
         detailContent.clear();
         int i = detailContent.size();
@@ -157,7 +167,7 @@ public class Detail extends AppCompatActivity {
         timeTextView = (TextView)findViewById(R.id.timeText);
         detailsEditText = (EditText)findViewById(R.id.detailsEditText);
 
-        Button setStartDate = (Button)findViewById(R.id.startDateButton);
+        ImageButton setStartDate = (ImageButton)findViewById(R.id.startDateButton);
         if (setStartDate != null){
             setStartDate.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -166,12 +176,30 @@ public class Detail extends AppCompatActivity {
                 }
             });
         }
-        Button setEndDate = (Button)findViewById(R.id.endDateButton);
+        ImageButton setEndDate = (ImageButton)findViewById(R.id.endDateButton);
         if (setEndDate != null){
             setEndDate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showDatePickerDialog(v);
+                }
+            });
+        }
+        ImageButton setStartDateNotification = (ImageButton)findViewById(R.id.startDateNotificationButton);
+        if (setStartDateNotification != null){
+            setStartDateNotification.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    notificationAlertDialog();
+                }
+            });
+        }
+        ImageButton setEndDateNotification = (ImageButton)findViewById(R.id.endDateNotificationButton);
+        if (setEndDateNotification != null){
+            setEndDateNotification.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    notificationAlertDialog();
                 }
             });
         }
@@ -181,12 +209,12 @@ public class Detail extends AppCompatActivity {
             metricsButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    // add in a new metric...
-                    addMetricAlertDialog();
-                    //addMetric();
+                    addMetricAlertDialog(); // add in a new metric
+
                 }
             });
         }
+
 
         //Removing the FAB for now as it gets in the way...
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -199,7 +227,155 @@ public class Detail extends AppCompatActivity {
         });*/
     } //onCreate method end
 
+    public void addNotification(String date, String time) {
+        final LinearLayout metricLayout = (LinearLayout) findViewById(R.id.notificationsLinear); //gets the metric LL
+
+        final LinearLayout overLinearLayout = new LinearLayout(Detail.this);
+        overLinearLayout.setId(R.id.notificationsLinearLayout); // might be able to use this to loop through all items to get their values...
+        overLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        overLinearLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.metricsborder));
+        overLinearLayout.setPadding(0, 0, 0, 50);
+        overLinearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            metricLayout.addView(overLinearLayout);
+        }
+
+        final LinearLayout linearLayout1 = new LinearLayout(Detail.this); // Creates the new LL - for title
+        linearLayout1.setId(R.id.notificationsLinearLayout); // might be able to use this to loop through all items to get their values...
+        linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout1.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            overLinearLayout.addView(linearLayout1);
+        }
+
+        String nameTextText = "Date:";
+        final TextView notificationDateText = new TextView(Detail.this);
+        notificationDateText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        notificationDateText.setGravity(Gravity.BOTTOM);
+        notificationDateText.setPadding(30, 0, 30, 0);
+        notificationDateText.setText(nameTextText);
+
+
+        final TextView notificationDate = new TextView(Detail.this);
+        notificationDate.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        notificationDate.setGravity(Gravity.BOTTOM);
+        notificationDate.setText(date);
+
+        final Button deleteButton = new Button(Detail.this);
+        deleteButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_delete_black_18dp, 0);
+        deleteButton.getBackground().setAlpha(0);
+
+        linearLayout1.addView(notificationDateText);
+        linearLayout1.addView(notificationDate);
+        linearLayout1.addView(deleteButton);
+
+        final LinearLayout linearLayout2 = new LinearLayout(Detail.this); // Creates the new LL - for title
+        linearLayout2.setId(R.id.notificationsLinearLayout); // might be able to use this to loop through all items to get their values...
+        linearLayout2.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout2.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+
+        if (metricLayout != null) { // as long as ML exists add a new layout
+            overLinearLayout.addView(linearLayout2);
+        }
+
+        String timeText = "Time:";
+        final TextView notificationTimeText = new TextView(Detail.this);
+        notificationTimeText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 85f));
+        notificationTimeText.setGravity(Gravity.BOTTOM);
+        notificationTimeText.setPadding(30, 0, 0, 0);
+        notificationTimeText.setText(timeText);
+
+        final TextView notificationTime = new TextView(Detail.this);
+        notificationTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 15f));
+        notificationTime.setGravity(Gravity.BOTTOM);
+        notificationTime.setText(time);
+
+        linearLayout2.addView(notificationTimeText);
+        linearLayout2.addView(notificationTime);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                overLinearLayout.setVisibility(View.GONE);
+                linearLayout1.setVisibility(View.GONE);
+                linearLayout2.setVisibility(View.GONE);
+            }
+        });
+
+    }
+
+    public void notificationAlertDialog (){
+        LayoutInflater layoutInflater = LayoutInflater.from(Detail.this);
+        View addNotificationView = layoutInflater.inflate(R.layout.notificationcreatorlayout, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
+        builder.setTitle("Create Alert");
+        builder.setView(addNotificationView);
+        notificationTimeBool = true;
+
+        dateTextView = (TextView)addNotificationView.findViewById(R.id.dateTextView);
+        // need a check to see which button was used to create the alert dialog...
+        Log.d("startdateTV", String.valueOf(startDateTextView.getText()));
+        if (dateTextView != null) {
+            dateTextView.setText(startDateTextView.getText());
+        }
+        timeAD = (TextView)addNotificationView.findViewById(R.id.timeTextView);
+        if (timeAD != null) {
+            timeAD.setText(timeTextView.getText());
+        }
+
+        final ImageButton dateSelector = (ImageButton)addNotificationView.findViewById(R.id.dateSelector);
+        if (dateSelector != null){
+            dateSelector.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePickerDialog(v);
+                }
+            });
+        }
+        ImageButton timeSelector =(ImageButton)addNotificationView.findViewById(R.id.timeSelector);
+        if (timeSelector != null){
+            timeSelector.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showTimePickerDialog(v);
+                }
+            });
+        }
+
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                createDateNotification();
+                /* will also need to set the notifications area to visisble... pass the data that the alert dialog holds onto
+                * the new area....
+                * create the notification with time restrictions to go off when it is set...
+                */
+                addNotification(String.valueOf(dateTextView.getText()),String.valueOf(timeAD.getText()));
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //does nothing... alerts user to enter another number... want to edit the text val to remove a number
+                Toast.makeText(Detail.this, "The creation of an alert has been canceled.", Toast.LENGTH_LONG).show();
+                notificationTimeBool = false;
+            }
+        });
+        builder.show();
+    }
+
+
     public void createDateNotification (){
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        // set for 30 seconds later
+        alarmMgr.set(AlarmManager.RTC, Calendar.getInstance().getTimeInMillis() + 10000, alarmIntent);
+        /*
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_date_range_white_18dp);
         builder.setContentTitle("Times up");
@@ -215,7 +391,7 @@ public class Detail extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
         notificationManager.notify(notificationId, builder.build());
-
+        */
         //TaskStackBuilder stackBuilder = new TaskStackBuilder(this);
         //stackBuilder.addParentStack(Detail.class);
         //adds the intent that starts the activity to the top of the stack
@@ -233,7 +409,7 @@ public class Detail extends AppCompatActivity {
         Log.d("View", String.valueOf(v));
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
-        if (String.valueOf(v) != null){ // chceck on which button was used in selection
+        if (String.valueOf(v) != null){ // check on which button was used in selection
             if (String.valueOf(v).contains("startDateButton")){
                 buttonUsed = "startDateButton";
             }
@@ -241,12 +417,6 @@ public class Detail extends AppCompatActivity {
                 buttonUsed = "endDateButton";
             }
         }
-        Log.d("buttonUsed",buttonUsed);
-    }
-
-    public void showDatePickerDialog() { // might not be needed??
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
     }
 
     // sets up the time selector to be called when the button is pressed
@@ -263,7 +433,16 @@ public class Detail extends AppCompatActivity {
         }
         public void onTimeSet (TimePicker view, int hourOfDay, int minute){
             //do something with the time chosen by the user
-            timeTextView.setText(String.format("%02d:%02d", hourOfDay,minute));
+            if (!notificationTimeBool ){
+                timeTextView.setText(String.format("%02d:%02d", hourOfDay,minute));
+            }
+
+            else{
+                timeAD.setText(String.format("%02d:%02d", hourOfDay,minute));
+                notificationTimeBool = false;
+            }
+
+            // need a way to differentiate between the alert dialog and the normal use...
         }
     }
 
@@ -279,16 +458,13 @@ public class Detail extends AppCompatActivity {
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
 
-
-
-
             // Create a new instance of DatePickerDialog and return it
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
         //
         public void onDateSet(DatePicker view, int year, int month, int day) {// sets the date selected
             boolean dateCheck = false;
-            // Do something with the date chosen by the user
+            // Do something with the date chosen by the user needs changing to work
             if (day <10){ // adds a 0 infront of the day if it is <10
                 day = Integer.parseInt("0")+day;
             }
@@ -300,13 +476,13 @@ public class Detail extends AppCompatActivity {
             Log.d ("anotherDate", aDate);
             Detail.setDateSelected(aDate); //sets the value of dateSelected
 
-            Log.d("buttonusedfinal", buttonUsed);
             if (buttonUsed != null) {
                 if (buttonUsed.equals("startDateButton")) {
                     startDateTextView.setText(dateSelected);
                     endDateTextView.setText(dateSelected);
+                    buttonUsed = null;
                 }
-                if (buttonUsed.equals("endDateButton")) {
+                else if (buttonUsed.equals("endDateButton")) {
                     // might need to parse it into a simpeDate format...
                     final String startDate = String.valueOf(startDateTextView.getText());
                     Log.d("start Date", startDate);
@@ -339,7 +515,14 @@ public class Detail extends AppCompatActivity {
                     else{
                         endDateTextView.setText(dateSelected);
                     }
+                    buttonUsed = null;
                 }
+
+            }
+            else if (buttonUsed == null){
+                notificationSelectorDate = dateSelected;
+                dateTextView.setText(notificationSelectorDate);
+                Toast.makeText(getActivity(), "the null thing!", Toast.LENGTH_LONG).show();
             }
 
         }
@@ -372,6 +555,7 @@ public class Detail extends AppCompatActivity {
         }
         public String bundlePrevLayerTitle(){
             getBundle();
+            if (bundlePrevLayerTitle !=null)
             bundlePrevLayerTitle = bundlePrevLayerTitle.replace("D1Q0jyf6fJ","");
             return bundlePrevLayerTitle;
         }
