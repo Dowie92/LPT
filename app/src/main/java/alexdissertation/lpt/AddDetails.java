@@ -1,5 +1,6 @@
 package alexdissertation.lpt;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -20,6 +21,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
@@ -41,6 +45,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -82,6 +87,8 @@ public class AddDetails extends AppCompatActivity {
 
     private static ArrayList<EditText>metricEditTexts = new ArrayList<EditText>();
     private static ArrayList<String>metricEditTextValues = new ArrayList<String>();
+
+    private String metricTypeSelected;
 
     //for the expandable list view and not needed at the moment
     /*private static ExpandableListAdapter expandableListAdapter;
@@ -274,11 +281,59 @@ public class AddDetails extends AppCompatActivity {
     public void addMetricAlertDialog(){
         LayoutInflater layoutInflater = LayoutInflater.from(AddDetails.this);
         View addDetailView = layoutInflater.inflate(R.layout.metricsinputdialog, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
         builder.setView(addDetailView);
         final EditText metricNameEditText = (EditText)addDetailView.findViewById(R.id.nameEditText);
         final EditText metricAmountEditText = (EditText)addDetailView.findViewById(R.id.amountEditText);
         final EditText metricCompleteEditText = (EditText)addDetailView.findViewById(R.id.completeEditText);
+
+        final EditText metricAmountEditTextDouble = (EditText)addDetailView.findViewById(R.id.amountEditTextDouble);
+        final EditText metricCompleteEditTextDouble = (EditText)addDetailView.findViewById(R.id.completeEditTextDouble);
+
+        // setting up the spinner
+        final Spinner metricTypeSelector = (Spinner)addDetailView.findViewById(R.id.metricTypeSpinner);
+        List<String> metricSpinner = new ArrayList<String>();
+        metricSpinner.add("Whole numbers");
+        metricSpinner.add("Decimal numbers");
+        final ArrayAdapter<String> metricsDataAdapter = new ArrayAdapter<String>(AddDetails.this, android.R.layout.simple_spinner_item, metricSpinner);
+        metricTypeSelector.setAdapter(metricsDataAdapter);
+        metricTypeSelector.setSelection(Adapter.NO_SELECTION, false);
+        metricTypeSelected = "Whole numbers";
+
+        // need to set the base level value
+        metricTypeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                metricTypeSelected = metricTypeSelector.getItemAtPosition(arg2).toString();
+                // set the values to null when they dissapear
+                addMetricTypeCheck();
+                if (addMetricTypeCheck()){
+                    metricAmountEditTextDouble.setVisibility(View.INVISIBLE);
+                    metricCompleteEditTextDouble.setVisibility(View.INVISIBLE);
+                    metricAmountEditTextDouble.setText(null);
+                    metricCompleteEditTextDouble.setText(null);
+
+                    metricAmountEditText.setVisibility(View.VISIBLE);
+                    metricCompleteEditText.setVisibility(View.VISIBLE);
+                }
+                else{
+                    metricAmountEditText.setVisibility(View.INVISIBLE);
+                    metricCompleteEditText.setVisibility(View.INVISIBLE);
+                    metricAmountEditText.setText(null);
+                    metricCompleteEditText.setText(null);
+
+                    metricAmountEditTextDouble.setVisibility(View.VISIBLE);
+                    metricCompleteEditTextDouble.setVisibility(View.VISIBLE);
+                }//if (metricTypeSelected.equals("Decimal numbers"))
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no need to d anything...
+            }
+        });
+
+
         builder.setTitle("Add Metric");
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
@@ -290,13 +345,24 @@ public class AddDetails extends AppCompatActivity {
 
                 if (metricNameEditText != null) {
                     metricNameVal = metricNameEditText.getText().toString();
-                    Log.d("metricNameVal", metricNameVal);
+
                 }
-                if (metricAmountEditText != null) {
-                    metricAmountVal = metricAmountEditText.getText().toString();
+                boolean addMCheck = addMetricTypeCheck();
+                if (addMCheck){
+                    if (metricAmountEditText != null) {
+                        metricAmountVal = metricAmountEditText.getText().toString();
+                    }
+                    if (metricCompleteEditText != null) {
+                        metricCompleteVal = metricCompleteEditText.getText().toString();
+                    }
                 }
-                if (metricCompleteEditText != null) {
-                    metricCompleteVal = metricCompleteEditText.getText().toString();
+                else {
+                    if (metricAmountEditTextDouble != null) {
+                        metricAmountVal = metricAmountEditTextDouble.getText().toString();
+                    }
+                    if (metricCompleteEditTextDouble != null) {
+                        metricCompleteVal = metricCompleteEditTextDouble.getText().toString();
+                    }
                 }
                 addMetric(metricNameVal, metricAmountVal, metricCompleteVal);
             }
@@ -308,10 +374,23 @@ public class AddDetails extends AppCompatActivity {
         });
         builder.show();
     }
+    public boolean addMetricTypeCheck(){
+        boolean wholeNumberSelected;
+        if(metricTypeSelected.equals("Whole numbers")){
+            wholeNumberSelected = true;
+        }
+        else {
+            wholeNumberSelected =false;
+        }
+        Log.d("wholeNumberSelected", String.valueOf(wholeNumberSelected));
+
+        return wholeNumberSelected;
+    }
 
     public void addMetric(String nameVal, String amountVal, String completeVal ){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
-        String presetNumber = "0";
+        boolean addMetricCheck = addMetricTypeCheck();
+
         final LinearLayout overLinearLayout = new  LinearLayout(AddDetails.this);
         overLinearLayout.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
         overLinearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -383,7 +462,13 @@ public class AddDetails extends AppCompatActivity {
         final EditText metricsFirstNumber = new EditText(AddDetails.this);
         metricsFirstNumber.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         metricsFirstNumber.setGravity(Gravity.BOTTOM);
-        metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if (addMetricCheck){
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
+        else{
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+
         metricsFirstNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsFirstNumber.setText(amountVal);
 
@@ -423,7 +508,12 @@ public class AddDetails extends AppCompatActivity {
         final EditText metricsCompleteNumber = new EditText(AddDetails.this);
         metricsCompleteNumber.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         metricsCompleteNumber.setGravity(Gravity.BOTTOM);
-        metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if (addMetricCheck){
+            metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
+        else{
+            metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
         metricsCompleteNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsCompleteNumber.setText(completeVal);
 
@@ -483,9 +573,8 @@ public class AddDetails extends AppCompatActivity {
 
                     }
                     else{
-
-                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
-                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        final double number1 = Double.parseDouble(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Double.parseDouble(String.valueOf(metricsCompleteNumber.getText()));
                         Log.d("number1Val", String.valueOf(number1));
                         Log.d("number2Val", String.valueOf(number2));
 
@@ -496,7 +585,6 @@ public class AddDetails extends AppCompatActivity {
                             builder.setPositiveButton("Keep Value", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                     double percentage = (number2 / number1) * 100;
                                     String percentageFormat = String.format("%.2f", percentage);
                                     if (number1 ==0 && number2 ==0){
@@ -572,6 +660,7 @@ public class AddDetails extends AppCompatActivity {
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         editText.setGravity(Gravity.BOTTOM);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         allEditText.add(editText);
 
         final Button deleteButton = new Button(AddDetails.this);

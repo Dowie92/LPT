@@ -4,6 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+//import android.app.TaskStackBuilder;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,8 +17,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -24,12 +29,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -45,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.StreamHandler;
 
 public class Detail extends AppCompatActivity {
@@ -69,6 +79,8 @@ public class Detail extends AppCompatActivity {
     private static String buttonUsed;
     private static String dateSelected;
 
+    private String metricTypeSelected;
+
     public static void setDateSelected(String t){
         Detail.dateSelected = t;
     }
@@ -80,6 +92,8 @@ public class Detail extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        createDateNotification();
 
         detailContent.clear();
         int i = detailContent.size();
@@ -185,6 +199,31 @@ public class Detail extends AppCompatActivity {
         });*/
     } //onCreate method end
 
+    public void createDateNotification (){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_date_range_white_18dp);
+        builder.setContentTitle("Times up");
+        builder.setContentText("This is the end date for the plan/subtitle");
+        builder.setVibrate(new long[]{ 1000, 1000, 1000 });
+
+
+        Intent resultIntent = new Intent(this, Detail.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+        int notificationId = 1;
+        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+        notificationManager.notify(notificationId, builder.build());
+
+        //TaskStackBuilder stackBuilder = new TaskStackBuilder(this);
+        //stackBuilder.addParentStack(Detail.class);
+        //adds the intent that starts the activity to the top of the stack
+        //stackBuilder.addNextIntent(resultIntent);
+        //PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        //NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+    }
+
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
@@ -239,6 +278,8 @@ public class Detail extends AppCompatActivity {
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
+
+
 
 
             // Create a new instance of DatePickerDialog and return it
@@ -446,6 +487,52 @@ public class Detail extends AppCompatActivity {
         final EditText metricNameEditText = (EditText)addDetailView.findViewById(R.id.nameEditText);
         final EditText metricAmountEditText = (EditText)addDetailView.findViewById(R.id.amountEditText);
         final EditText metricCompleteEditText = (EditText)addDetailView.findViewById(R.id.completeEditText);
+
+        final EditText metricAmountEditTextDouble = (EditText)addDetailView.findViewById(R.id.amountEditTextDouble);
+        final EditText metricCompleteEditTextDouble = (EditText)addDetailView.findViewById(R.id.completeEditTextDouble);
+        // setting up the spinner
+        final Spinner metricTypeSelector = (Spinner)addDetailView.findViewById(R.id.metricTypeSpinner);
+        List<String> metricSpinner = new ArrayList<String>();
+        metricSpinner.add("Whole numbers");
+        metricSpinner.add("Decimal numbers");
+        final ArrayAdapter<String> metricsDataAdapter = new ArrayAdapter<String>(Detail.this, android.R.layout.simple_spinner_item, metricSpinner);
+        metricTypeSelector.setAdapter(metricsDataAdapter);
+        metricTypeSelector.setSelection(Adapter.NO_SELECTION, false);
+        metricTypeSelected = "Whole numbers";
+
+        // need to set the base level value
+        metricTypeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                metricTypeSelected = metricTypeSelector.getItemAtPosition(arg2).toString();
+                // set the values to null when they dissapear
+                addMetricTypeCheck();
+                if (addMetricTypeCheck()){
+                    metricAmountEditTextDouble.setVisibility(View.INVISIBLE);
+                    metricCompleteEditTextDouble.setVisibility(View.INVISIBLE);
+                    metricAmountEditTextDouble.setText(null);
+                    metricCompleteEditTextDouble.setText(null);
+
+                    metricAmountEditText.setVisibility(View.VISIBLE);
+                    metricCompleteEditText.setVisibility(View.VISIBLE);
+                }
+                else{
+                    metricAmountEditText.setVisibility(View.INVISIBLE);
+                    metricCompleteEditText.setVisibility(View.INVISIBLE);
+                    metricAmountEditText.setText(null);
+                    metricCompleteEditText.setText(null);
+
+                    metricAmountEditTextDouble.setVisibility(View.VISIBLE);
+                    metricCompleteEditTextDouble.setVisibility(View.VISIBLE);
+                }//if (metricTypeSelected.equals("Decimal numbers"))
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no need to d anything...
+            }
+        });
+
         builder.setTitle("Add Metric");
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
@@ -460,11 +547,22 @@ public class Detail extends AppCompatActivity {
                     metricNameVal = metricNameEditText.getText().toString();
                     Log.d("metricNameVal", metricNameVal);
                 }
-                if (metricAmountEditText != null) {
-                    metricAmountVal = metricAmountEditText.getText().toString();
+                boolean addMCheck = addMetricTypeCheck();
+                if (addMCheck){
+                    if (metricAmountEditText != null) {
+                        metricAmountVal = metricAmountEditText.getText().toString();
+                    }
+                    if (metricCompleteEditText != null) {
+                        metricCompleteVal = metricCompleteEditText.getText().toString();
+                    }
                 }
-                if (metricCompleteEditText != null) {
-                    metricCompleteVal = metricCompleteEditText.getText().toString();
+                else {
+                    if (metricAmountEditTextDouble != null) {
+                        metricAmountVal = metricAmountEditTextDouble.getText().toString();
+                    }
+                    if (metricCompleteEditTextDouble != null) {
+                        metricCompleteVal = metricCompleteEditTextDouble.getText().toString();
+                    }
                 }
                 addMetric(metricNameVal, metricAmountVal, metricCompleteVal);
 
@@ -477,9 +575,27 @@ public class Detail extends AppCompatActivity {
         });
         builder.show();
     }
+    public boolean addMetricTypeCheck(){
+        boolean wholeNumberSelected;
+        if (metricTypeSelected == null) {
+            wholeNumberSelected = Boolean.parseBoolean(null);
+            Log.d("WNSNull", String.valueOf(wholeNumberSelected));
+            return wholeNumberSelected;
+        }
+        else {
+            if (metricTypeSelected.equals("Whole numbers")) {
+                wholeNumberSelected = true;
+            } else {
+                wholeNumberSelected = false;
+            }
+            Log.d("wholeNumberSelected", String.valueOf(wholeNumberSelected));
+        }
+        return wholeNumberSelected;
+    }
 
     public void addMetric(String name, String amount, String complete){
         final LinearLayout metricLayout = (LinearLayout)findViewById(R.id.metricsLinear); //gets the metric LL
+        boolean addMetricCheck = addMetricTypeCheck();
 
         final LinearLayout overLinearLayout = new  LinearLayout(Detail.this);
         overLinearLayout.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
@@ -549,7 +665,18 @@ public class Detail extends AppCompatActivity {
         final EditText metricsFirstNumber = new EditText(Detail.this);
         metricsFirstNumber.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         metricsFirstNumber.setGravity(Gravity.CENTER_HORIZONTAL);
-        metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if (addMetricCheck){
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
+        else{
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+        if (amount.contains(".") | complete.contains(".")){
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+        else{
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
         metricsFirstNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsFirstNumber.setText(amount);
 
@@ -587,7 +714,19 @@ public class Detail extends AppCompatActivity {
         final EditText metricsCompleteNumber = new EditText(Detail.this);
         metricsCompleteNumber.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         metricsCompleteNumber.setGravity(Gravity.CENTER_HORIZONTAL);
-        metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if (addMetricCheck){ // when adding a new metric frim in the details area
+            metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
+        else{
+            metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+        if (amount.contains(".") | complete.contains(".")){ // for checking the details from the savefile coming from addDetails Class
+            metricsFirstNumber.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+        else{
+            metricsCompleteNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
+
         metricsCompleteNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsCompleteNumber.setText(complete);
 
@@ -633,8 +772,8 @@ public class Detail extends AppCompatActivity {
                         missingValAlertDialog();
                     }
                     else{
-                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
-                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        final double number1 = Double.parseDouble(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Double.parseDouble(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
                         boolean notificationSettingsCheck = notificationSettingsCheck();
                         if (!notificationSettingsCheck){
@@ -662,8 +801,8 @@ public class Detail extends AppCompatActivity {
                         missingValAlertDialog();
                     }
                     else{
-                        final double number1 = Integer.parseInt(String.valueOf(metricsFirstNumber.getText()));
-                        final double number2 = Integer.parseInt(String.valueOf(metricsCompleteNumber.getText()));
+                        final double number1 = Double.parseDouble(String.valueOf(metricsFirstNumber.getText()));
+                        final double number2 = Double.parseDouble(String.valueOf(metricsCompleteNumber.getText()));
                         String percentageString = percentageCalculation(number1, number2);
                         boolean notificationSettingsCheck = notificationSettingsCheck();
                         if (!notificationSettingsCheck){
@@ -758,6 +897,7 @@ public class Detail extends AppCompatActivity {
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         editText.setGravity(Gravity.BOTTOM);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         final Button deleteButton = new Button(Detail.this);
         deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
@@ -793,7 +933,6 @@ public class Detail extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String userInput = String.valueOf(checkBoxUserInput.getText()); //gets the text from the edit Text
                     Log.d("checkbox userInput",userInput);
-                    // need to do something with the String inputs (to save)... add to an array
                     checkListsize = checkListsize +1;
                     updateCheckbox();
                 }
@@ -834,6 +973,7 @@ public class Detail extends AppCompatActivity {
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         editText.setGravity(Gravity.BOTTOM);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         editText.setText(loadFileInput);
 
         final Button deleteButton = new Button(Detail.this);

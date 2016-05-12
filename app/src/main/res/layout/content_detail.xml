@@ -199,7 +199,8 @@
                     android:id="@+id/firstCheckboxEditText"
                     android:layout_gravity="bottom"
                     android:layout_weight="1"
-                    android:inputType="text"/>
+                    android:inputType="text"
+                    android:imeOptions="actionDone"/>
             </LinearLayout>
 
 

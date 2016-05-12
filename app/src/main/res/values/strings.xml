@@ -13,4 +13,5 @@
     <string name="Metric_name">Metric Name:</string>
     <string name="metric_amount">Amount:</string>
     <string name="metric_Complete">Complete:</string>
+    <string name="metric_type">Metric type</string>
 </resources>
