@@ -151,13 +151,12 @@ public class Detail extends AppCompatActivity {
             }
         });
 
-        Button setTime = (Button)findViewById(R.id.timeButton);
+        ImageButton setTime = (ImageButton)findViewById(R.id.timeButton);
         if (setTime != null) {
             setTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showTimePickerDialog(v);
-
                 }
             });
         }
