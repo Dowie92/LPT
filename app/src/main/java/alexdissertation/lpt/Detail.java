@@ -17,6 +17,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.BoolRes;
+import android.support.annotation.StringDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -38,11 +39,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -54,6 +57,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,7 +79,12 @@ public class Detail extends AppCompatActivity {
 
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
-    private static int checkListsize = 0;
+    private static TextView checkListPercentageText;
+    private String checkBoxComletedTextStart = "You have completed ";
+    private String checkBoxComletedTextEnd = "% of the checklist";
+    private int checkListsize = 0;
+    private ArrayList<CheckBox> checkListArray = new ArrayList<CheckBox>();
+    private static ProgressBar checkListProgressBar;
     private static boolean notificationSettings;
     private boolean loadDetailsFileCorrect;
     private boolean loadMetricsFileCorrect;
@@ -123,7 +132,10 @@ public class Detail extends AppCompatActivity {
         populateDetails();
         populateMetrics();
 
+
         firstCheckbox = (CheckBox)findViewById(R.id.firstCheckbox);
+        checkListPercentageText = (TextView)findViewById(R.id.progressText);
+        checkListArray.add(firstCheckbox);
         checkBoxUserInput = (EditText)findViewById(R.id.firstCheckboxEditText);// the first edit text...
         checkBoxUserInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -143,13 +155,23 @@ public class Detail extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     checkBoxUserInput.setPaintFlags(checkBoxUserInput.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
                 }
                 else{
                     checkBoxUserInput.setPaintFlags(0);
-                    //do nothing
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
                 }
             }
         });
+
 
         ImageButton setTime = (ImageButton)findViewById(R.id.timeButton);
         if (setTime != null) {
@@ -165,6 +187,7 @@ public class Detail extends AppCompatActivity {
         endDateTextView = (TextView)findViewById(R.id.endDate);
         timeTextView = (TextView)findViewById(R.id.timeText);
         detailsEditText = (EditText)findViewById(R.id.detailsEditText);
+        checkListProgressBar = (ProgressBar)findViewById(R.id.checkListProgressBar);
 
         ImageButton setStartDate = (ImageButton)findViewById(R.id.startDateButton);
         if (setStartDate != null){
@@ -225,6 +248,23 @@ public class Detail extends AppCompatActivity {
             }
         });*/
     } //onCreate method end
+
+    public double percentageCheckListTicked (){
+        double percentageCheckListTicked;
+        double numberTicked = 0;
+        int checkListArraySize = checkListArray.size();
+        for (int i=0; i<checkListArraySize; i++ ) {
+            CheckBox checkBox = checkListArray.get(i);
+            if (checkBox.isChecked()) {
+                numberTicked = numberTicked + 1;
+                Log.d ("number ticked", String.valueOf(numberTicked));
+            }
+            else {}
+        }
+        percentageCheckListTicked = (numberTicked/(checkListsize+1))*100;
+
+        return percentageCheckListTicked;
+    }
 
     public void addNotification(String date, String time) {
         final LinearLayout metricLayout = (LinearLayout) findViewById(R.id.notificationsLinear); //gets the metric LL
@@ -826,7 +866,7 @@ public class Detail extends AppCompatActivity {
         linearLayout1.addView(metricName);
         linearLayout1.addView(deleteButton);
 
-        //Layer 1 sorted...
+        //Layer 1 end
 
         //Layer2
         final LinearLayout linearLayout2 = new LinearLayout(Detail.this); // creates the LL for to be added
@@ -875,7 +915,7 @@ public class Detail extends AppCompatActivity {
         linearLayout2.addView(placeHolderTextV);
 
 
-        //Linear Layout 2 done
+        //Linear Layout 2 end
 
         final LinearLayout linearLayout3 = new LinearLayout(Detail.this); // creates the LL for the complete
         linearLayout3.setId(R.id.metricLinearLayout); // might be able to use this to loop through all items to get their values...
@@ -1050,21 +1090,36 @@ public class Detail extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                overLinearLayout.setVisibility(View.GONE);
-                linearLayout1.setVisibility(View.GONE);
-                linearLayout2.setVisibility(View.GONE);
-                linearLayout3.setVisibility(View.GONE);
-                linearLayout4.setVisibility(View.GONE);
-
+                String message = "Are you sure you would like to delete this metric?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
+                builder.setTitle("Congrats");
+                builder.setMessage(message);
+                builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        overLinearLayout.setVisibility(View.GONE);
+                        linearLayout1.setVisibility(View.GONE);
+                        linearLayout2.setVisibility(View.GONE);
+                        linearLayout3.setVisibility(View.GONE);
+                        linearLayout4.setVisibility(View.GONE);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //closes the alert Dialog
+                    }
+                });
+                builder.show();
             }
         });
 
     }
 
-    public void updateCheckbox(){ // adds a new Linear Layout containin the Checkbox and edit text
+    public void updateCheckbox(){ // adds a new Linear Layout containing the Checkbox and edit text from detail activity
         final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
         final LinearLayout linearLayout = new LinearLayout(Detail.this);
-        linearLayout.setId(checkListsize);
+        linearLayout.setId(R.id.checkListLinearLayout);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -1074,6 +1129,7 @@ public class Detail extends AppCompatActivity {
 
         CheckBox checkBox = new CheckBox(Detail.this);
         checkBox.setGravity(Gravity.BOTTOM);
+        checkListArray.add(checkBox);
 
 
         final EditText editText = new EditText(Detail.this);
@@ -1091,6 +1147,7 @@ public class Detail extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 linearLayout.setVisibility(View.GONE);
+                checkListsize = checkListsize -1;
             }
         });
 
@@ -1103,9 +1160,19 @@ public class Detail extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
                 }
                 else{
-                    checkBoxUserInput.setPaintFlags(0);
+                    editText.setPaintFlags(0);
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
                 }
             }
         });
@@ -1138,10 +1205,10 @@ public class Detail extends AppCompatActivity {
         });
 
     }
-    public void updateCheckbox(String loadFileInput){ // adds a new Linear Layout containin the Checkbox and edit text
+    public void updateCheckbox(String loadFileInput){ // adds a new Linear Layout containin the Checkbox and edit text from savefile
         final LinearLayout firstLinearLayout = (LinearLayout)findViewById(R.id.checkBoxLinear);
         final LinearLayout linearLayout = new LinearLayout(Detail.this);
-        linearLayout.setId(checkListsize);
+        linearLayout.setId(R.id.checkListLinearLayout);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -1151,6 +1218,7 @@ public class Detail extends AppCompatActivity {
 
         CheckBox checkBox = new CheckBox(Detail.this);
         checkBox.setGravity(Gravity.BOTTOM);
+        checkListArray.add(checkBox);
 
         final EditText editText = new EditText(Detail.this);
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -1167,8 +1235,8 @@ public class Detail extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 linearLayout.setVisibility(View.GONE);
+                checkListsize = checkListsize -1;
             }
         });
 
@@ -1181,9 +1249,20 @@ public class Detail extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     editText.setPaintFlags(editText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
                 }
                 else{
                     editText.setPaintFlags(0);
+                    double checkedPercentage = percentageCheckListTicked();
+                    int percentage = (int)Math.round(checkedPercentage);
+                    checkListProgressBar.setProgress(percentage);
+                    String text = checkBoxComletedTextStart+String.valueOf(checkedPercentage+checkBoxComletedTextEnd);
+                    checkListPercentageText.setText(text);
+
                 }
             }
         });
@@ -1302,6 +1381,7 @@ public class Detail extends AppCompatActivity {
             for (int editTextI = 7; editTextI < i; editTextI++) { // iterates through the values to create the checkboxes and Edit texts
                 if (detailContent.get(editTextI-1)!=null){ // check that the value exists in the arrayList...Might not be needed...
                     updateCheckbox(String.valueOf(detailContent.get(editTextI-1)));
+                    checkListsize = checkListsize+1;
                 }
                 // need to feed in the value needed to be added to the edit Text
                 // updateCheckbox();

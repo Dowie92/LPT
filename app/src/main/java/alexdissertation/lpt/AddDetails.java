@@ -624,16 +624,32 @@ public class AddDetails extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String message = "Are you sure you would like to delete this metric?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(AddDetails.this);
+                builder.setTitle("Congrats");
+                builder.setMessage(message);
+                builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        metricEditTexts.remove(metricName);
+                        metricEditTexts.remove(metricsFirstNumber);
+                        metricEditTexts.remove(metricsCompleteNumber);
+                        overLinearLayout.setVisibility(View.GONE);
+                        linearLayout1.setVisibility(View.GONE);
+                        linearLayout2.setVisibility(View.GONE);
+                        linearLayout3.setVisibility(View.GONE);
+                        linearLayout4.setVisibility(View.GONE);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //closes the alert Dialog
+                    }
+                });
+                builder.show();
+                //Removes the relevant items from the Metric EditText array list
 
-               //Removes the relevant items from the Metric EditText array list
-               metricEditTexts.remove(metricName);
-               metricEditTexts.remove(metricsFirstNumber);
-               metricEditTexts.remove(metricsCompleteNumber);
-               overLinearLayout.setVisibility(View.GONE);
-               linearLayout1.setVisibility(View.GONE);
-               linearLayout2.setVisibility(View.GONE);
-               linearLayout3.setVisibility(View.GONE);
-               linearLayout4.setVisibility(View.GONE);
 
 
             }
