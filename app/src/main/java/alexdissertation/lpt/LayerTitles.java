@@ -86,11 +86,8 @@ public class LayerTitles {
         getSubTitleConcat();
         titlesArray.add(TitleSubLConcat);
         int i = titlesArray.size();
-        String iValue = String.valueOf(i);
         if (i == ((Integer.parseInt(getLayer())))){
             titlesArray.set(((Integer.parseInt(getLayer()))-1), TitleSubLConcat);
-            String s= String.valueOf(Integer.parseInt(getLayer())-1);
-            Log.d("LT-getL -1",s);
         }
         else if (i >((Integer.parseInt(getLayer())))) {
             titlesArray.subList(Integer.parseInt(getLayer()),i).clear();

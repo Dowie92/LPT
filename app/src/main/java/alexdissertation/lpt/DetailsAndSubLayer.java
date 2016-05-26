@@ -509,9 +509,7 @@ public class DetailsAndSubLayer extends AppCompatActivity {
         };
         File[] files = file.listFiles(fileFilter);
         for (File file1 : files) {
-            Log.d("FileListToRename", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
             newFileName = String.valueOf(file1).replace(fileContains,newFileContains);
-            Log.d("newFileName",newFileName);
             newFile = new File(newFileName);
             file1.renameTo(newFile); // changes the filename..
         }

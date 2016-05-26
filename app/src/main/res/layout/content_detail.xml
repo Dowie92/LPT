@@ -22,6 +22,30 @@
         android:paddingTop="100dp">
 
         <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/overallProgressBarLinear">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressTitle"
+                android:text="SubTask Progress"
+                android:padding="10dp"/>
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/overallProgressBar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/overallProgressText"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/secondLinear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -82,7 +106,8 @@
                 android:src="@drawable/ic_date_range_black_24dp"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_gravity="center"
-                android:contentDescription="date Selector" />
+                android:contentDescription="date Selector"
+                android:visibility="invisible"/>
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -91,7 +116,8 @@
                 android:src="@drawable/ic_alarm_add_black_24dp"
                 style="?android:attr/borderlessButtonStyle"
                 android:contentDescription="add alarm"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:visibility="invisible"/>
 
         </LinearLayout>
 
@@ -130,7 +156,8 @@
                 android:id="@+id/endDateButton"
                 android:src="@drawable/ic_date_range_black_24dp"
                 style="?android:attr/borderlessButtonStyle"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:visibility="invisible"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,7 +166,8 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:contentDescription="add alarm"
                 android:layout_gravity="center"
-                />
+                android:visibility="invisible"/>
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
@@ -173,7 +201,9 @@
                 android:paddingStart="20dp"
                 android:paddingLeft="20dp"
                 android:paddingRight="0dp"
-                android:paddingEnd="0dp"/>
+                android:paddingEnd="0dp"
+                android:visibility="invisible"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -197,6 +227,7 @@
                     android:inputType="textMultiLine"
                     android:ems="20"
                     android:id="@+id/detailsEditText"/>
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -297,6 +328,7 @@
                     android:id="@+id/metricsAdd"
                     android:drawableLeft="@drawable/ic_add_black_18dp"
                     android:drawableStart="@drawable/ic_add_black_18dp"
+                    android:visibility="invisible"
                     />
 
             </LinearLayout>

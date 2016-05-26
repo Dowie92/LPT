@@ -9,6 +9,7 @@
     <string name="title_activity_details_and_sub_layer">DetailsAndSubLayer</string>
     <string name="title_activity_add_details">AddDetails</string>
     <string name="action_save">Save</string>
+    <string name="action_edit">Edit</string>
     <string name="title_activity_detail">Detail</string>
     <string name="Metric_name">Metric Name:</string>
     <string name="metric_amount">Amount:</string>

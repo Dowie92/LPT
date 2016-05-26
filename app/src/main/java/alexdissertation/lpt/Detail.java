@@ -32,6 +32,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Adapter;
@@ -55,6 +57,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
@@ -68,14 +71,29 @@ import java.util.logging.StreamHandler;
 
 public class Detail extends AppCompatActivity {
     private String loadFileName;
-    private static ArrayList <String> detailContent = new ArrayList<String>();
-    private static ArrayList<String> metricContent = new ArrayList<String>();
+    private ArrayList <String> detailContent = new ArrayList<String>();
+    private ArrayList<String> metricContent = new ArrayList<String>();
 
     private static TextView titleTextView;
     private static TextView startDateTextView;
     private static TextView endDateTextView;
     private static TextView timeTextView;
     private static EditText detailsEditText;
+
+    private static ImageButton setStartDate;
+    private static ImageButton setEndDate;
+    private static ImageButton setStartDateNotification;
+    private static ImageButton setEndDateNotification;
+    private static ImageButton setTime;
+    private static Button metricsButton;
+
+    private File detailsFile;
+    private ArrayList <String> details = new ArrayList<String>();
+    private ArrayList<EditText> allEditText = new ArrayList<EditText>();
+    private ArrayList<String> editTextValues = new ArrayList<String >();
+
+    private ArrayList<EditText>metricEditTexts = new ArrayList<EditText>();
+    private ArrayList<String>metricEditTextValues = new ArrayList<String>();
 
     private static EditText checkBoxUserInput;
     private static CheckBox firstCheckbox;
@@ -89,6 +107,10 @@ public class Detail extends AppCompatActivity {
     private boolean loadDetailsFileCorrect;
     private boolean loadMetricsFileCorrect;
 
+    private static ProgressBar overallProgressBar;
+    private static TextView overallProgressText;
+    private static double progressPercentage;
+
     // for the date selectors
     private static String buttonUsed;
     private static String dateSelected;
@@ -99,6 +121,8 @@ public class Detail extends AppCompatActivity {
     private static TextView dateTextView;
     private static TextView timeAD;
     private static boolean notificationTimeBool;
+
+    private Menu menu;
 
     public static void setDateSelected(String t){
         Detail.dateSelected = t;
@@ -118,6 +142,11 @@ public class Detail extends AppCompatActivity {
         int i = detailContent.size();
         metricContent.clear();
         int m = metricContent.size();
+
+        allEditText.clear();
+        editTextValues.clear();
+        metricEditTexts.clear();
+        metricEditTextValues.clear();
 
         String prevTitle = new detailsBundle().bundlePrevLayerTitle();
         Log.d("prevTitle", prevTitle);
@@ -173,7 +202,7 @@ public class Detail extends AppCompatActivity {
         });
 
 
-        ImageButton setTime = (ImageButton)findViewById(R.id.timeButton);
+        setTime = (ImageButton)findViewById(R.id.timeButton);
         if (setTime != null) {
             setTime.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -182,6 +211,7 @@ public class Detail extends AppCompatActivity {
                 }
             });
         }
+
         titleTextView = (TextView)findViewById(R.id.Title);
         startDateTextView = (TextView)findViewById(R.id.startDate);
         endDateTextView = (TextView)findViewById(R.id.endDate);
@@ -189,7 +219,10 @@ public class Detail extends AppCompatActivity {
         detailsEditText = (EditText)findViewById(R.id.detailsEditText);
         checkListProgressBar = (ProgressBar)findViewById(R.id.checkListProgressBar);
 
-        ImageButton setStartDate = (ImageButton)findViewById(R.id.startDateButton);
+        overallProgressBar = (ProgressBar)findViewById(R.id.overallProgressBar);
+        overallProgressText = (TextView)findViewById(R.id.overallProgressText);
+
+        setStartDate = (ImageButton)findViewById(R.id.startDateButton);
         if (setStartDate != null){
             setStartDate.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -198,7 +231,7 @@ public class Detail extends AppCompatActivity {
                 }
             });
         }
-        ImageButton setEndDate = (ImageButton)findViewById(R.id.endDateButton);
+        setEndDate = (ImageButton)findViewById(R.id.endDateButton);
         if (setEndDate != null){
             setEndDate.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -207,7 +240,7 @@ public class Detail extends AppCompatActivity {
                 }
             });
         }
-        ImageButton setStartDateNotification = (ImageButton)findViewById(R.id.startDateNotificationButton);
+        setStartDateNotification = (ImageButton)findViewById(R.id.startDateNotificationButton);
         if (setStartDateNotification != null){
             setStartDateNotification.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -216,7 +249,7 @@ public class Detail extends AppCompatActivity {
                 }
             });
         }
-        ImageButton setEndDateNotification = (ImageButton)findViewById(R.id.endDateNotificationButton);
+        setEndDateNotification = (ImageButton)findViewById(R.id.endDateNotificationButton);
         if (setEndDateNotification != null){
             setEndDateNotification.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -226,7 +259,7 @@ public class Detail extends AppCompatActivity {
             });
         }
 
-        final Button metricsButton = (Button)findViewById(R.id.metricsAdd);
+        metricsButton = (Button)findViewById(R.id.metricsAdd);
         if (metricsButton != null) {
             metricsButton.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -248,6 +281,97 @@ public class Detail extends AppCompatActivity {
             }
         });*/
     } //onCreate method end
+
+    public void overallProgressStatisiticCalculation(){
+        //check on the number of metrics
+
+        //check on the number of checklists
+        // add these together....
+
+        //combine the percentages as they are relevant
+
+        //progressPercentage = ....
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.toolbareditbutton, menu);
+        return true;
+    }
+    private void menuHideEdit(){
+        MenuItem editItem = menu.findItem(R.id.action_Edit);
+        MenuItem saveItem = menu.findItem(R.id.action_Save);
+        editItem.setVisible(false);
+        editItem.setShowAsAction(0);
+        saveItem.setVisible(true);
+        saveItem.setShowAsAction(1);
+    }
+    private void menuShowEdit(){
+        MenuItem editItem = menu.findItem(R.id.action_Edit);
+        MenuItem saveItem = menu.findItem(R.id.action_Save);
+        editItem.setVisible(true);
+        editItem.setShowAsAction(1);
+        saveItem.setVisible(false);
+        saveItem.setShowAsAction(0);
+    }
+    public void fileChecker(){
+        String path = String.valueOf(this.getFilesDir());
+        File file = new File(path);
+        File[] files = file.listFiles();
+        for (File file1 : files) {
+            Log.d("FileCheckerFileList", String.valueOf(file1).replace(String.valueOf(getFilesDir()), ""));
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_Edit:
+                setStartDate.setVisibility(View.VISIBLE);
+                setEndDate.setVisibility(View.VISIBLE);
+                setStartDateNotification.setVisibility(View.VISIBLE);
+                setEndDateNotification.setVisibility(View.VISIBLE);
+                setTime.setVisibility(View.VISIBLE);
+                metricsButton.setVisibility(View.VISIBLE);
+                menuHideEdit();
+                fileChecker();
+                return true;
+
+            case R.id.action_Save:
+                menuShowEdit();
+                setStartDate.setVisibility(View.INVISIBLE);
+                setEndDate.setVisibility(View.INVISIBLE);
+                setStartDateNotification.setVisibility(View.INVISIBLE);
+                setEndDateNotification.setVisibility(View.INVISIBLE);
+                setTime.setVisibility(View.INVISIBLE);
+                metricsButton.setVisibility(View.INVISIBLE);
+                try {
+                    detailsSaveFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    detailsMetricSaveFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                fileChecker();
+                Toast.makeText(Detail.this, "The changes you have made have been saved", Toast.LENGTH_LONG).show();
+                return true;
+
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     public double percentageCheckListTicked (){
         double percentageCheckListTicked;
@@ -857,6 +981,8 @@ public class Detail extends AppCompatActivity {
         metricName.setInputType(InputType.TYPE_CLASS_TEXT);
         metricName.setText(name);
 
+        metricEditTexts.add(metricName);
+
         final Button deleteButton = new Button(Detail.this);
         deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
         deleteButton.getBackground().setAlpha(0);
@@ -902,6 +1028,8 @@ public class Detail extends AppCompatActivity {
         }
         metricsFirstNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsFirstNumber.setText(amount);
+
+        metricEditTexts.add(metricsFirstNumber);
 
         String placeHolder = "";
         final TextView placeHolderTextV = new TextView(Detail.this);
@@ -953,8 +1081,7 @@ public class Detail extends AppCompatActivity {
         metricsCompleteNumber.setImeOptions(EditorInfo.IME_ACTION_DONE);
         metricsCompleteNumber.setText(complete);
 
-        // need an onclick done for this to perform the stat analysis to get the % done....
-        //will need checks to make sure that it is correct... no lower than 1st val numbers... no too large numbers
+        metricEditTexts.add(metricsCompleteNumber);
 
         String placeHolder2 = "";
         final TextView placeHolderTextV2 = new TextView(Detail.this);
@@ -984,6 +1111,12 @@ public class Detail extends AppCompatActivity {
         finalStatText.setPadding(30,80,50,100);
         finalStatText.setVisibility(View.GONE);
         linearLayout4.addView(finalStatText);
+
+        final ProgressBar metricProgress = new ProgressBar(Detail.this);
+        finalStatText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        metricProgress.setMax(100);
+        linearLayout4.addView(metricProgress);
+
         //Stat analysis... get the % complete
         //calculation on the done click when the user has input from the second number
         // performs the stats and checks on the second value when the user moves away
@@ -1089,7 +1222,7 @@ public class Detail extends AppCompatActivity {
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 String message = "Are you sure you would like to delete this metric?";
                 AlertDialog.Builder builder = new AlertDialog.Builder(Detail.this);
                 builder.setTitle("Congrats");
@@ -1137,6 +1270,7 @@ public class Detail extends AppCompatActivity {
         editText.setGravity(Gravity.BOTTOM);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
         editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        allEditText.add(editText);
 
         final Button deleteButton = new Button(Detail.this);
         deleteButton.setCompoundDrawablesWithIntrinsicBounds( 0,0,R.drawable.ic_delete_black_18dp,0);
@@ -1439,6 +1573,8 @@ public class Detail extends AppCompatActivity {
         }
 
     }//Load file code
+
+
     public void loadDetailMetricsFile() {
         loadFileName = getMetricFileName();
         Log.d("Detail-LoadFileName", loadFileName);
@@ -1468,6 +1604,124 @@ public class Detail extends AppCompatActivity {
             loadMetricsFileCorrect = false;
         }
 
+    }
+    public void getDetails(){// gets all of the details and adds it to an array list to go into a file
+        details.clear();
+        int addDetailsArraySize = details.size();
+        Log.d("addDetailsArraySize", String.valueOf(addDetailsArraySize));
+        Log.d("^^size should be", "0 here^^");
+
+        String title = String.valueOf(titleTextView.getText());
+        Log.d("AddDTitle", title);
+        details.add(title);
+        String sDate = String.valueOf(startDateTextView.getText());
+        Log.d("AddDSDate", sDate);
+        details.add(sDate);
+        String eDate = String.valueOf(endDateTextView.getText());
+        Log.d("AddDEDate", eDate );
+        details.add(eDate);
+        String time = String.valueOf(timeTextView.getText());
+        Log.d("AddDTime", time);
+        details.add(time);
+        String editTextDetails = String.valueOf(detailsEditText.getText());
+        Log.d("editTextDetails", editTextDetails);
+        details.add(editTextDetails);
+    }
+
+    public void fileDelete (){
+        String deleteFileName = getFileName();
+        deleteFileName = deleteFileName.substring(0,(deleteFileName.length()-10))+ "D1Q0jyf6fJ";
+        File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileName);// need a file to give the reader....
+        Log.d("delete: deletefile..", String.valueOf(deleteFile));
+
+        if (!deleteFile.exists()){
+            //Log to give feedback on if the file exists....
+            Log.d("Delete", "file does not exist ");
+        }
+        else {
+            //Deleting the file
+            boolean DTF = deleteFile.delete();
+            //Feedback file has been deleted.
+            Log.d("Delete", "File Deleted");
+        }
+    }
+    public void metricsFileDelete (){
+        String deleteFileName = getFileName();
+        deleteFileName = deleteFileName.substring(0,(deleteFileName.length()-10))+ "MetricsD1Q0jyf6fJ";
+        File deleteFile = new File(this.getFilesDir(),File.separator + deleteFileName);// need a file to give the reader....
+        Log.d("delete: deletefile..", String.valueOf(deleteFile));
+        if (!deleteFile.exists()){
+            //Log to give feedback on if the file exists....
+            Log.d("Delete", "file does not exist ");
+        }
+        else {
+            //Deleting the file
+            boolean DTF = deleteFile.delete();
+            //Feedback file has been deleted.
+            Log.d("Delete", "File Deleted");
+        }
+    }
+
+    public void detailsSaveFile() throws IOException {
+        fileDelete();
+        getFileName();
+        getDetails();
+        //loop and edit Text details will be needed to be added to the details file add...
+        editTextValuesToArray(); //calls the method to add all of the string values to the savefile array
+        String edVal;
+        metricEditTextToArray();
+        String saveFileName = getFileName();
+        saveFileName = saveFileName.substring(0,(saveFileName.length()-10))+ "D1Q0jyf6fJ";
+        detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
+        FileWriter writer = new FileWriter(detailsFile, true);
+        int size = details.size(); // calling an array....
+        for (int i = 0; i < size; i++) { // adding the main details to the array
+            String str = details.get(i);
+            Log.d("saveFile Output", str);
+            writer.write(str + "\n");
+        }
+        int edValSize = editTextValues.size();
+        for (int i = 0; i<edValSize; i++){ // adding the checklist details to the array
+            edVal = editTextValues.get(i);
+            Log.d("editTextVal", edVal);
+            writer.write(edVal + "\n");
+        }
+        writer.close();
+
+    }
+
+    public void metricEditTextToArray(){
+        int size = metricEditTexts.size();
+        metricEditTextValues = new ArrayList<String>();
+        for (int i = 0; i<size; i++){ // loops through the amount of sets of metrics added
+            metricEditTextValues.add(String.valueOf(metricEditTexts.get(i).getText())); //loops through to get the values and add them to a string array
+        }
+    }
+
+    public void editTextValuesToArray(){
+        int size = allEditText.size();
+        editTextValues.add(String.valueOf(checkBoxUserInput.getText())); // adds the first edit text value to the array
+        for (int i = 0; i<size; i++){ //loops through the dynamically created arrays to add their values to the array
+            editTextValues.add(String.valueOf(allEditText.get(i).getText()));
+        }
+
+    }
+    public void detailsMetricSaveFile() throws IOException {
+        metricsFileDelete();
+        getFileName();
+        String metricEdVals;
+        metricEditTextToArray();
+        String saveFileName = getFileName();
+        saveFileName = saveFileName.substring(0,(saveFileName.length()-10))+ "MetricsD1Q0jyf6fJ";
+        detailsFile = new File(this.getFilesDir(), saveFileName);   //Creates file with the previous plan name and layer
+        FileWriter writer = new FileWriter(detailsFile, true);
+        int metricEdValSize = metricEditTextValues.size();
+        for (int i = 0; i < metricEdValSize; i++) { // loop for metrics values... probably need a check on Name being null...
+            metricEdVals = metricEditTextValues.get(i);
+            Log.d("metricEdVals", metricEdVals);
+            writer.write(metricEdVals + "\n");
+        }
+        writer.close();
     }
 
 }

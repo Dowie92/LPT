@@ -519,9 +519,6 @@ public class AddDetails extends AppCompatActivity {
 
         metricEditTexts.add(metricsCompleteNumber);
 
-        // need an onclick done for this to perform the stat analysis to get the % done....
-        //will need checks to make sure that it is correct... no lower than 1st val numbers... no too large numbers
-
         String placeHolder2 = "";
         final TextView placeHolderTextV2 = new TextView(AddDetails.this);
         placeHolderTextV2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT));
